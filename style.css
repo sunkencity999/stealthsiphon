@@ -329,10 +329,15 @@ button:disabled {
 @media (max-width: 768px) {
     .container {
         padding: 30px 20px;
+        max-width: 100%;
     }
     
     h1 {
         font-size: 2rem;
+    }
+    
+    p {
+        font-size: 0.95rem;
     }
     
     .btn-group {
@@ -341,5 +346,93 @@ button:disabled {
     
     .btn-group button {
         width: 100%;
+    }
+    
+    /* Improve form elements on mobile */
+    input[type="text"], 
+    input[type="url"],
+    select,
+    textarea {
+        font-size: 16px; /* Prevents iOS zoom on focus */
+        padding: 10px 14px;
+    }
+    
+    /* Make file format selector more mobile-friendly */
+    .file-format-selector {
+        flex-wrap: wrap;
+    }
+    
+    .format-option {
+        flex: 1 0 30%;
+        min-width: 80px;
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 576px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        padding: 20px 15px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    h2 {
+        font-size: 1.3rem;
+    }
+    
+    /* Adjust options panel for small screens */
+    .options-panel {
+        padding: 1rem;
+    }
+    
+    .options-panel h3 {
+        font-size: 1rem;
+    }
+    
+    /* Make checkboxes easier to tap on mobile */
+    .checkbox-group {
+        padding: 5px 0;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+    
+    /* Fix text overflow issues */
+    .result-preview {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 375px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    /* Ensure buttons are properly sized on very small screens */
+    button {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+    
+    /* Adjust format options for very small screens */
+    .format-option {
+        padding: 8px 5px;
+        font-size: 0.8rem;
+    }
+    
+    /* Make sure status messages are readable */
+    .status {
+        padding: 0.75rem;
+        font-size: 0.9rem;
     }
 }

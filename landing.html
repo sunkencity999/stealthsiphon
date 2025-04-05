@@ -15,12 +15,15 @@
                 <i class="fas fa-spider"></i>
                 <span>Stealth Siphon</span>
             </div>
-            <nav>
+            <button class="mobile-menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav id="mainNav">
                 <ul>
                     <li><a href="#features">Features</a></li>
                     <li><a href="#installation">Installation</a></li>
                     <li><a href="#documentation">Documentation</a></li>
-                    <li><a href="https://github.com/yourusername/stealthsiphon" target="_blank" class="github-link">
+                    <li><a href="https://github.com/sunkencity999/stealthsiphon" target="_blank" class="github-link">
                         <i class="fab fa-github"></i> GitHub
                     </a></li>
                 </ul>
@@ -35,11 +38,11 @@
                 <p>A powerful web scraper with a built-in proxy server, advanced countermeasures, and a beautiful dark-themed UI.</p>
                 <div class="cta-buttons">
                     <a href="#installation" class="btn primary">Get Started</a>
-                    <a href="https://github.com/yourusername/stealthsiphon" class="btn secondary">View on GitHub</a>
+                    <a href="https://github.com/sunkencity999/stealthsiphon" class="btn secondary">View on GitHub</a>
                 </div>
             </div>
             <div class="hero-image">
-                <img src="https://via.placeholder.com/600x400/1e1e1e/6c5ce7?text=Stealth+Siphon" alt="Stealth Siphon Screenshot">
+                <img src="/Images/base.png" alt="Stealth Siphon Screenshot">
             </div>
         </div>
     </section>
@@ -168,7 +171,7 @@
                         <li>Click "Start Scraping"</li>
                         <li>Download or preview the results</li>
                     </ol>
-                    <a href="https://github.com/yourusername/stealthsiphon/wiki/Basic-Usage" class="learn-more">Learn More</a>
+                    <a href="https://github.com/sunkencity999/stealthsiphon/wiki/Basic-Usage" class="learn-more">Learn More</a>
                 </div>
                 <div class="doc-card">
                     <h3>Advanced Options</h3>
@@ -179,17 +182,17 @@
                         <li><strong>Bypass robots.txt:</strong> Ignore restrictions</li>
                         <li><strong>Rotate User-Agents:</strong> Avoid detection</li>
                     </ul>
-                    <a href="https://github.com/yourusername/stealthsiphon/wiki/Advanced-Options" class="learn-more">Learn More</a>
+                    <a href="https://github.com/sunkencity999/stealthsiphon/wiki/Advanced-Options" class="learn-more">Learn More</a>
                 </div>
                 <div class="doc-card">
                     <h3>Proxy Configuration</h3>
                     <p>Stealth Siphon includes a built-in proxy server, but you can also configure external proxies for additional anonymity.</p>
-                    <a href="https://github.com/yourusername/stealthsiphon/wiki/Proxy-Configuration" class="learn-more">Learn More</a>
+                    <a href="https://github.com/sunkencity999/stealthsiphon/wiki/Proxy-Configuration" class="learn-more">Learn More</a>
                 </div>
                 <div class="doc-card">
                     <h3>Troubleshooting</h3>
                     <p>Common issues and their solutions, including handling CAPTCHAs, rate limiting, and IP blocking.</p>
-                    <a href="https://github.com/yourusername/stealthsiphon/wiki/Troubleshooting" class="learn-more">Learn More</a>
+                    <a href="https://github.com/sunkencity999/stealthsiphon/wiki/Troubleshooting" class="learn-more">Learn More</a>
                 </div>
             </div>
         </div>
@@ -205,13 +208,13 @@
                 <p>An open-source project. Use responsibly and respect website terms of service.</p>
             </div>
             <div class="footer-links">
-                <a href="https://github.com/yourusername/stealthsiphon" target="_blank">
+                <a href="https://github.com/sunkencity999/stealthsiphon" target="_blank">
                     <i class="fab fa-github"></i>
                 </a>
-                <a href="https://github.com/yourusername/stealthsiphon/issues" target="_blank">
+                <a href="https://github.com/sunkencity999/stealthsiphon/issues" target="_blank">
                     <i class="fas fa-bug"></i>
                 </a>
-                <a href="https://github.com/yourusername/stealthsiphon/wiki" target="_blank">
+                <a href="https://github.com/sunkencity999/stealthsiphon/wiki" target="_blank">
                     <i class="fas fa-book"></i>
                 </a>
             </div>
@@ -224,6 +227,7 @@
     </footer>
 
     <script>
+        // Copy code function
         function copyCode(button) {
             const codeBlock = button.previousElementSibling;
             const textArea = document.createElement('textarea');
@@ -240,6 +244,39 @@
                 button.innerHTML = originalIcon;
             }, 2000);
         }
+        
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menuToggle');
+            const mainNav = document.getElementById('mainNav');
+            
+            if (menuToggle && mainNav) {
+                menuToggle.addEventListener('click', function() {
+                    mainNav.classList.toggle('mobile-nav-open');
+                    menuToggle.classList.toggle('active');
+                    document.body.classList.toggle('menu-open');
+                });
+                
+                // Close menu when clicking on a link
+                const navLinks = mainNav.querySelectorAll('a');
+                navLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        mainNav.classList.remove('mobile-nav-open');
+                        menuToggle.classList.remove('active');
+                        document.body.classList.remove('menu-open');
+                    });
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!mainNav.contains(event.target) && !menuToggle.contains(event.target)) {
+                        mainNav.classList.remove('mobile-nav-open');
+                        menuToggle.classList.remove('active');
+                        document.body.classList.remove('menu-open');
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
