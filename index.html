@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stealth Siphon | Advanced Web Scraper</title>
+    <meta name="description" content="A powerful web scraping tool with advanced features and customizable options">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Stealth Siphon</h1>
+        <p>Advanced web scraping with customizable options and multiple export formats</p>
+        
+        <div class="input-group">
+            <label for="urlInput">Target URL</label>
+            <input type="url" id="urlInput" placeholder="https://example.com" required>
+        </div>
+        
+        <div class="options-panel">
+            <button type="button" class="options-toggle" id="optionsToggle">
+                Advanced Options <i class="fas fa-chevron-down"></i>
+            </button>
+            
+            <div class="options-content" id="optionsContent">
+                <h3>Content Extraction</h3>
+                <div class="input-group">
+                    <label for="selectorInput">CSS Selector (optional)</label>
+                    <input type="text" id="selectorInput" placeholder=".article, #content, etc.">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="extractLinks" checked>
+                    <label for="extractLinks">Extract all links</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="extractImages">
+                    <label for="extractImages">Extract image URLs</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="extractText" checked>
+                    <label for="extractText">Extract text content</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="followLinks">
+                    <label for="followLinks">Follow links (max depth: 1)</label>
+                </div>
+                
+                <h3>Countermeasures</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="bypassRobots" checked>
+                    <label for="bypassRobots">Bypass robots.txt restrictions</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="rotateUserAgent" checked>
+                    <label for="rotateUserAgent">Rotate User-Agents</label>
+                </div>
+                
+                <div class="input-group">
+                    <label for="userAgentInput">Custom User Agent (optional)</label>
+                    <input type="text" id="userAgentInput" placeholder="Mozilla/5.0...">
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="useProxy">
+                    <label for="useProxy">Use Proxy</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="useFallbackMethod">
+                    <label for="useFallbackMethod">Use Fallback Method (if 403 errors occur)</label>
+                </div>
+                
+                <div class="input-group">
+                    <label for="proxyInput">Proxy URL (optional)</label>
+                    <input type="text" id="proxyInput" placeholder="https://your-proxy-service.com/api?url=" disabled>
+                </div>
+                
+                <div class="input-group">
+                    <label for="proxyApiKey">Proxy API Key (if required)</label>
+                    <input type="text" id="proxyApiKey" placeholder="your-api-key" disabled>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="useDelay">
+                    <label for="useDelay">Add request delay</label>
+                </div>
+                
+                <div class="input-group">
+                    <label for="delayInput">Delay between requests (ms)</label>
+                    <input type="number" id="delayInput" min="100" max="10000" value="1000" disabled>
+                </div>
+            </div>
+        </div>
+        
+        <div class="file-format-selector">
+            <div class="format-option selected" data-format="json">
+                <i class="fas fa-code"></i> JSON
+            </div>
+            <div class="format-option" data-format="csv">
+                <i class="fas fa-file-csv"></i> CSV
+            </div>
+            <div class="format-option" data-format="txt">
+                <i class="fas fa-file-alt"></i> TXT
+            </div>
+        </div>
+        
+        <div class="btn-group">
+            <button id="scrapeButton" onclick="scrapeURL()">
+                <i class="fas fa-download"></i> Start Scraping
+            </button>
+            <button id="previewButton" class="btn-secondary" onclick="previewResults()" disabled>
+                <i class="fas fa-eye"></i> Preview Results
+            </button>
+        </div>
+        
+        <div class="status" id="statusMessage"></div>
+        
+        <div class="result-preview" id="resultPreview"></div>
+        
+        <div class="download-section" id="downloadSection">
+            <h2>Scraping Complete</h2>
+            <p>Your data has been successfully scraped and is ready for download.</p>
+            <a id="downloadLink" class="download-link" href="#" download="scraped_data.json">
+                <i class="fas fa-file-download"></i> Download Results
+            </a>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
