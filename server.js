@@ -2,16 +2,126 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
+const sqlite3 = require('sqlite3').verbose();
+const mongoose = require('mongoose');
+const mysql = require('mysql2/promise');
+const headlessBrowser = require('./headless-browser');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4200;
+
+// Database connections
+let sqliteDb = null;
+let mongoConnection = null;
+let mysqlConnection = null;
+
+// Initialize SQLite database
+function initSqliteDb() {
+    if (!sqliteDb) {
+        console.log('Initializing SQLite database...');
+        sqliteDb = new sqlite3.Database('./scraped_data.db', (err) => {
+            if (err) {
+                console.error('SQLite database connection error:', err.message);
+            } else {
+                console.log('Connected to SQLite database');
+                // Create table if it doesn't exist
+                sqliteDb.run(`CREATE TABLE IF NOT EXISTS scraped_data (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    url TEXT,
+                    data TEXT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                )`);
+            }
+        });
+    }
+    return sqliteDb;
+}
+
+// Initialize MongoDB connection
+async function initMongoDb(connectionString) {
+    if (!mongoConnection) {
+        try {
+            console.log('Initializing MongoDB connection...');
+            await mongoose.connect(connectionString, {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            });
+            console.log('Connected to MongoDB');
+            
+            // Define schema and model
+            const scrapedDataSchema = new mongoose.Schema({
+                url: String,
+                data: mongoose.Schema.Types.Mixed,
+                timestamp: { type: Date, default: Date.now }
+            });
+            
+            // Create model if it doesn't exist
+            if (!mongoose.models.ScrapedData) {
+                mongoose.model('ScrapedData', scrapedDataSchema);
+            }
+            
+            mongoConnection = mongoose.connection;
+        } catch (error) {
+            console.error('MongoDB connection error:', error);
+            throw error;
+        }
+    }
+    return mongoConnection;
+}
+
+// Initialize MySQL connection
+async function initMySqlDb(config) {
+    if (!mysqlConnection) {
+        try {
+            console.log('Initializing MySQL connection...');
+            mysqlConnection = await mysql.createConnection(config);
+            console.log('Connected to MySQL');
+            
+            // Create table if it doesn't exist
+            await mysqlConnection.execute(`
+                CREATE TABLE IF NOT EXISTS scraped_data (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    url VARCHAR(255),
+                    data LONGTEXT,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            `);
+        } catch (error) {
+            console.error('MySQL connection error:', error);
+            throw error;
+        }
+    }
+    return mysqlConnection;
+}
+
+// Initialize headless browser on startup
+headlessBrowser.initBrowser().catch(err => {
+    console.error('Error initializing headless browser at startup:', err);
+    // Continue running the server even if browser init fails
+});
+
+// Close browser on process exit
+process.on('exit', async () => {
+    await headlessBrowser.closeBrowser();
+    console.log('Headless browser closed');
+});
+
+// Handle graceful shutdown
+process.on('SIGINT', async () => {
+    await headlessBrowser.closeBrowser();
+    console.log('Headless browser closed');
+    process.exit(0);
+});
 
 // Enable CORS for all routes
 app.use(cors());
 
+// Parse JSON request bodies
+app.use(express.json());
+
 // Serve static files from the current directory
 app.use(express.static(__dirname));
 
-// Proxy endpoint
+// Standard proxy endpoint (using axios)
 app.get('/proxy', async (req, res) => {
     const url = req.query.url;
     
@@ -41,7 +151,7 @@ app.get('/proxy', async (req, res) => {
             url: url,
             headers: headers,
             responseType: 'arraybuffer',  // Handle binary data properly
-            timeout: 10000  // 10 second timeout
+            timeout: 30000  // 30 second timeout
         });
         
         // Set response headers based on the target response
@@ -80,6 +190,147 @@ app.get('/proxy', async (req, res) => {
     }
 });
 
+// Headless browser proxy endpoint (using our improved implementation)
+app.get('/headless-proxy', async (req, res) => {
+    const url = req.query.url;
+    
+    if (!url) {
+        return res.status(400).json({ error: 'URL parameter is required' });
+    }
+    
+    // Get optional parameters
+    const userAgent = req.query.userAgent || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36';
+    const waitForSelector = req.query.waitForSelector || 'body';
+    const waitTime = parseInt(req.query.waitTime) || 0;
+    const fullPage = req.query.fullPage === 'true';
+    const extractFormat = req.query.extractFormat || 'html'; // html, text, or screenshot
+    const screenshotFormat = req.query.screenshotFormat || 'png'; // png or jpeg
+    const bypassRobots = req.query.bypassRobots === 'true';
+    
+    // Call our headless browser service
+    const result = await headlessBrowser.scrapeWithHeadlessBrowser({
+        url,
+        userAgent,
+        waitForSelector,
+        waitTime,
+        fullPage,
+        extractFormat,
+        screenshotFormat,
+        bypassRobots,
+        timeout: 30000
+    });
+    
+    if (result.success) {
+        // Set the appropriate content type header
+        res.setHeader('Content-Type', result.contentType);
+        
+        // Send the content
+        res.send(result.content);
+        console.log(`Successfully scraped ${url} with headless browser`);
+    } else {
+        // Return error details
+        console.error(`Headless proxy error for ${url}:`, result.error.message);
+        
+        return res.status(500).json({
+            error: 'Headless Browser Error',
+            message: result.error.message,
+            stack: result.error.stack,
+            url: url
+        });
+    }
+});
+
+// Database export endpoint
+app.post('/export-to-db', express.json(), async (req, res) => {
+    const { url, data, dbType, connectionConfig } = req.body;
+    
+    if (!url || !data) {
+        return res.status(400).json({ error: 'URL and data are required' });
+    }
+    
+    if (!dbType) {
+        return res.status(400).json({ error: 'Database type is required' });
+    }
+    
+    try {
+        let result;
+        
+        switch (dbType) {
+            case 'sqlite':
+                // Initialize SQLite
+                const db = initSqliteDb();
+                
+                // Insert data
+                result = await new Promise((resolve, reject) => {
+                    const stmt = db.prepare('INSERT INTO scraped_data (url, data) VALUES (?, ?)');
+                    stmt.run(url, JSON.stringify(data), function(err) {
+                        if (err) reject(err);
+                        else resolve({ id: this.lastID });
+                    });
+                    stmt.finalize();
+                });
+                
+                return res.json({
+                    success: true,
+                    message: 'Data exported to SQLite successfully',
+                    id: result.id
+                });
+                
+            case 'mongodb':
+                if (!connectionConfig || !connectionConfig.connectionString) {
+                    return res.status(400).json({ error: 'MongoDB connection string is required' });
+                }
+                
+                // Initialize MongoDB
+                await initMongoDb(connectionConfig.connectionString);
+                
+                // Insert data
+                const ScrapedData = mongoose.model('ScrapedData');
+                const newData = new ScrapedData({
+                    url,
+                    data
+                });
+                
+                result = await newData.save();
+                
+                return res.json({
+                    success: true,
+                    message: 'Data exported to MongoDB successfully',
+                    id: result._id
+                });
+                
+            case 'mysql':
+                if (!connectionConfig) {
+                    return res.status(400).json({ error: 'MySQL connection config is required' });
+                }
+                
+                // Initialize MySQL
+                const mysqlConn = await initMySqlDb(connectionConfig);
+                
+                // Insert data
+                const [rows] = await mysqlConn.execute(
+                    'INSERT INTO scraped_data (url, data) VALUES (?, ?)',
+                    [url, JSON.stringify(data)]
+                );
+                
+                return res.json({
+                    success: true,
+                    message: 'Data exported to MySQL successfully',
+                    id: rows.insertId
+                });
+                
+            default:
+                return res.status(400).json({ error: 'Unsupported database type' });
+        }
+    } catch (error) {
+        console.error(`Database export error:`, error.message);
+        return res.status(500).json({
+            error: 'Database Export Error',
+            message: error.message
+        });
+    }
+});
+
 // Fallback route to serve index.html for all other routes
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
@@ -89,4 +340,5 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Stealth Siphon server running on http://localhost:${PORT}`);
     console.log(`Access the proxy via http://localhost:${PORT}/proxy?url=https://example.com`);
+    console.log(`Access the headless browser via http://localhost:${PORT}/headless-proxy?url=https://example.com`);
 });

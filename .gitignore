@@ -21,7 +21,6 @@ out/
 # Landing page files (as requested)
 landing.html
 landing.css
-README.md
 
 # OS specific files
 .DS_Store
@@ -42,6 +41,16 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Browser data and temporary files
+browser_data/
+*.tmp
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+scraper_data.db
 
 # Runtime data
 pids

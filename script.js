@@ -66,6 +66,55 @@ document.addEventListener('DOMContentLoaded', () => {
     useDelayCheckbox.addEventListener('change', () => {
         delayInput.disabled = !useDelayCheckbox.checked;
     });
+    
+    // Toggle headless browser options
+    const useHeadlessBrowserCheckbox = document.getElementById('useHeadlessBrowser');
+    const headlessBrowserOptions = document.getElementById('headlessBrowserOptions');
+    
+    useHeadlessBrowserCheckbox.addEventListener('change', () => {
+        headlessBrowserOptions.style.display = useHeadlessBrowserCheckbox.checked ? 'block' : 'none';
+    });
+    
+    // Handle extract format changes
+    const extractFormatSelect = document.getElementById('extractFormat');
+    const fullPageScreenshotCheckbox = document.getElementById('fullPageScreenshot');
+    
+    extractFormatSelect.addEventListener('change', () => {
+        // Only show full page option for screenshots
+        const isScreenshot = extractFormatSelect.value === 'screenshot';
+        fullPageScreenshotCheckbox.parentElement.style.display = isScreenshot ? 'flex' : 'none';
+    });
+    
+    // Toggle database options
+    const dbExportRadio = document.getElementById('dbExport');
+    const databaseOptions = document.getElementById('databaseOptions');
+    
+    dbExportRadio.addEventListener('change', () => {
+        databaseOptions.style.display = dbExportRadio.checked ? 'block' : 'none';
+    });
+    
+    // Toggle database-specific options based on database type
+    const dbTypeSelect = document.getElementById('dbType');
+    const mongoDbOptions = document.getElementById('mongoDbOptions');
+    const mysqlOptions = document.getElementById('mysqlOptions');
+    
+    dbTypeSelect.addEventListener('change', () => {
+        // Hide all database-specific options first
+        document.querySelectorAll('.db-specific-options').forEach(el => {
+            el.style.display = 'none';
+        });
+        
+        // Show options for the selected database type
+        switch (dbTypeSelect.value) {
+            case 'mongodb':
+                mongoDbOptions.style.display = 'block';
+                break;
+            case 'mysql':
+                mysqlOptions.style.display = 'block';
+                break;
+            // SQLite doesn't need additional options
+        }
+    });
 });
 
 /**
@@ -88,7 +137,42 @@ function getEffectiveUserAgent(customUserAgent, shouldRotate) {
 /**
  * Prepare the URL with appropriate proxy if needed
  */
-function prepareRequestUrl(originalUrl, useProxy, proxyUrl, proxyApiKey, userAgent, bypassRobots) {
+function prepareRequestUrl(originalUrl, useProxy, proxyUrl, proxyApiKey, userAgent, bypassRobots, useHeadlessBrowser, headlessOptions) {
+    // Check if we should use headless browser
+    if (useHeadlessBrowser) {
+        // Build headless browser proxy URL
+        let headlessProxyUrl = `/headless-proxy?url=${encodeURIComponent(originalUrl)}`;
+        
+        // Add common parameters
+        headlessProxyUrl += `&userAgent=${encodeURIComponent(userAgent)}&bypassRobots=${bypassRobots}`;
+        
+        // Add headless browser specific parameters
+        if (headlessOptions) {
+            if (headlessOptions.waitForSelector) {
+                headlessProxyUrl += `&waitForSelector=${encodeURIComponent(headlessOptions.waitForSelector)}`;
+            }
+            
+            if (headlessOptions.waitTime) {
+                headlessProxyUrl += `&waitTime=${headlessOptions.waitTime}`;
+            }
+            
+            if (headlessOptions.fullPage) {
+                headlessProxyUrl += `&fullPage=true`;
+            }
+            
+            if (headlessOptions.extractFormat) {
+                headlessProxyUrl += `&extractFormat=${headlessOptions.extractFormat}`;
+                
+                // Add screenshot format if needed
+                if (headlessOptions.extractFormat === 'screenshot') {
+                    headlessProxyUrl += `&screenshotFormat=png`;
+                }
+            }
+        }
+        
+        return headlessProxyUrl;
+    }
+    
     // Default to our built-in proxy server
     const localProxyUrl = `/proxy?url=${encodeURIComponent(originalUrl)}`;
     
@@ -118,59 +202,62 @@ function prepareRequestUrl(originalUrl, useProxy, proxyUrl, proxyApiKey, userAge
  * Note: This has limited capabilities due to CORS restrictions
  */
 async function fallbackFetch(url, userAgent) {
-    // Try to use a few different approaches that might work for some sites
+    console.log('Using fallback fetch method for:', url);
     
-    // 1. Try direct fetch (will only work for CORS-enabled sites)
-    try {
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'User-Agent': userAgent
-            },
-            mode: 'no-cors' // This allows the request but limits access to the response
-        });
-        
-        // With no-cors we can't actually read the response, but we can check if it succeeded
-        if (response.type === 'opaque') {
-            return {
-                success: true,
-                message: 'Request succeeded but content is opaque due to CORS restrictions',
-                limited: true
-            };
-        }
-    } catch (error) {
-        console.log('Direct fetch failed:', error);
-    }
-    
-    // 2. Try using our built-in proxy first, then alternative public proxies
-    const alternativeProxies = [
-        `/proxy?url=${encodeURIComponent(url)}&userAgent=${encodeURIComponent(userAgent)}`,
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+    // Try using a public CORS proxy if available
+    const publicProxies = [
+        'https://corsproxy.io/?',
+        'https://api.allorigins.win/raw?url=',
+        'https://api.codetabs.com/v1/proxy?quest=',
+        'https://cors-anywhere.herokuapp.com/'
     ];
     
-    for (const proxyUrl of alternativeProxies) {
+    // Try each proxy in order
+    for (const proxy of publicProxies) {
         try {
-            const response = await fetch(proxyUrl);
+            console.log(`Trying public proxy: ${proxy}`);
+            const response = await fetch(proxy + encodeURIComponent(url), {
+                headers: {
+                    'User-Agent': userAgent,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Origin': window.location.origin
+                }
+            });
+            
             if (response.ok) {
-                const text = await response.text();
-                return {
-                    success: true,
-                    content: text,
-                    limited: false
-                };
+                const content = await response.text();
+                if (content.length > 500) { // Basic check to ensure we got meaningful content
+                    console.log('Fallback fetch successful with proxy:', proxy);
+                    return content;
+                }
             }
         } catch (error) {
-            console.log(`Alternative proxy ${proxyUrl} failed:`, error);
+            console.warn(`Proxy ${proxy} failed:`, error.message);
+            // Continue to next proxy
         }
     }
     
-    // 3. If all else fails, inform the user
-    return {
-        success: false,
-        message: 'All fallback methods failed. Please try using a different proxy service or request CORS Anywhere access.',
-        limited: true
-    };
+    // If all proxies fail, try a direct fetch with no-cors mode
+    // This will have very limited capabilities
+    console.log('All proxies failed, trying direct fetch with no-cors mode');
+    
+    try {
+        const response = await fetch(url, {
+            mode: 'no-cors',
+            headers: {
+                'User-Agent': userAgent,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        // Note: With no-cors, we can't actually read the response content
+        // So we return a limited mode message
+        return '<html><body><h1>Limited Access Mode</h1><p>The content was fetched in limited mode due to CORS restrictions.</p><p>Try using the headless browser option for better results.</p></body></html>';
+        
+    } catch (error) {
+        console.error('Direct fetch also failed:', error.message);
+        throw new Error('All fallback methods failed');
+    }
 }
 
 /**
@@ -192,21 +279,28 @@ async function scrapeURL() {
     
     // Get all options
     const selector = document.getElementById('selectorInput').value;
-    const extractLinks = document.getElementById('extractLinks').checked;
-    const extractImages = document.getElementById('extractImages').checked;
-    const extractText = document.getElementById('extractText').checked;
-    const followLinks = document.getElementById('followLinks').checked;
+    const extractLinks = document.getElementById('extractLinks') ? document.getElementById('extractLinks').checked : false;
+    const useProxy = document.getElementById('useProxy') ? document.getElementById('useProxy').checked : false;
+    const proxyUrl = document.getElementById('proxyInput') ? document.getElementById('proxyInput').value.trim() : '';
+    const proxyApiKey = document.getElementById('proxyApiKey') ? document.getElementById('proxyApiKey').value.trim() : '';
+    const customUserAgent = document.getElementById('userAgentInput') ? document.getElementById('userAgentInput').value.trim() : '';
+    const rotateUserAgent = document.getElementById('rotateUserAgent') ? document.getElementById('rotateUserAgent').checked : true;
+    const useDelay = document.getElementById('useDelay') ? document.getElementById('useDelay').checked : false;
+    const delayMs = document.getElementById('delayInput') ? parseInt(document.getElementById('delayInput').value) || 0 : 0;
+    const bypassRobots = document.getElementById('bypassRobots') ? document.getElementById('bypassRobots').checked : true;
+    const followLinks = document.getElementById('followLinks') ? document.getElementById('followLinks').checked : false;
+    const useHeadlessBrowser = document.getElementById('useHeadlessBrowser') ? document.getElementById('useHeadlessBrowser').checked : false;
+    const useEnhancedFallback = document.getElementById('useEnhancedFallback') ? document.getElementById('useEnhancedFallback').checked : true;
+    let headlessOptions = null;
     
-    // Get countermeasure options
-    const bypassRobots = document.getElementById('bypassRobots').checked;
-    const rotateUserAgent = document.getElementById('rotateUserAgent').checked;
-    const customUserAgent = document.getElementById('userAgentInput').value;
-    const useProxy = document.getElementById('useProxy').checked;
-    const proxyUrl = document.getElementById('proxyInput').value;
-    const proxyApiKey = document.getElementById('proxyApiKey').value;
-    const useDelay = document.getElementById('useDelay').checked;
-    const delayMs = useDelay ? parseInt(document.getElementById('delayInput').value) : 0;
-    const useFallbackMethod = document.getElementById('useFallbackMethod').checked;
+    if (useHeadlessBrowser) {
+        headlessOptions = {
+            waitForSelector: document.getElementById('waitForSelector') ? document.getElementById('waitForSelector').value : '',
+            waitTime: document.getElementById('waitTime') ? parseInt(document.getElementById('waitTime').value) : 1000,
+            fullPage: document.getElementById('fullPageScreenshot') ? document.getElementById('fullPageScreenshot').checked : false,
+            extractFormat: document.getElementById('extractFormat') ? document.getElementById('extractFormat').value : 'html'
+        };
+    }
     
     // Get effective user agent
     const effectiveUserAgent = getEffectiveUserAgent(customUserAgent, rotateUserAgent);
@@ -215,13 +309,17 @@ async function scrapeURL() {
     setLoading(true);
     showStatus('Scraping in progress... This may take a moment.', 'loading');
     
+    if (useHeadlessBrowser) {
+        showStatus('Using headless browser. This may take longer than usual...', 'loading');
+    }
+    
     try {
         let html;
         let usedFallback = false;
         let fallbackLimited = false;
         
         // Prepare the request URL with proxy if needed
-        const requestUrl = prepareRequestUrl(url, useProxy, proxyUrl, proxyApiKey, effectiveUserAgent, bypassRobots);
+        const requestUrl = prepareRequestUrl(url, useProxy, proxyUrl, proxyApiKey, effectiveUserAgent, bypassRobots, useHeadlessBrowser, headlessOptions);
         
         // Prepare headers with countermeasures
         const headers = {
@@ -243,7 +341,8 @@ async function scrapeURL() {
 
             if (!response.ok) {
                 // If fallback is enabled and we get a 403, try the fallback method
-                if (useFallbackMethod && (response.status === 403 || response.status === 429)) {
+                if ((useEnhancedFallback || document.getElementById('useFallbackMethod')?.checked) && 
+                    (response.status === 403 || response.status === 429 || response.status === 500)) {
                     throw new Error('Using fallback method');
                 }
                 
@@ -264,30 +363,91 @@ async function scrapeURL() {
                     throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
                 }
             }
-
+            
             html = await response.text();
-        } catch (primaryError) {
-            // If fallback is enabled, try it
+            
+        } catch (error) {
+            console.error('Primary request failed:', error.message);
+            
+            // Try fallback methods
             if (useFallbackMethod) {
-                showStatus('Primary request failed. Trying fallback methods...', 'loading');
-                console.log('Primary request failed, trying fallback:', primaryError);
-                
-                const fallbackResult = await fallbackFetch(url, effectiveUserAgent);
-                
-                if (fallbackResult.success) {
-                    usedFallback = true;
-                    fallbackLimited = fallbackResult.limited;
-                    
-                    if (fallbackResult.limited) {
-                        showStatus('Using limited fallback mode. Some features may not work.', 'loading');
-                        // For limited mode, we'll create a simple HTML document with a message
-                        html = `<html><body><h1>Limited Access Mode</h1><p>The content was fetched in limited mode due to CORS restrictions.</p></body></html>`;
-                    } else {
-                        html = fallbackResult.content;
+                // First try headless browser if not already using it
+                if (!useHeadlessBrowser) {
+                    try {
+                        showStatus('Primary request failed. Trying headless browser...', 'loading');
+                        
+                        // Prepare headless browser options
+                        const headlessFallbackOptions = {
+                            waitForSelector: 'body',
+                            waitTime: 2000,
+                            fullPage: true,
+                            extractFormat: 'html'
+                        };
+                        
+                        // Create headless browser request URL
+                        const headlessRequestUrl = prepareRequestUrl(
+                            url, 
+                            useProxy, 
+                            proxyUrl, 
+                            proxyApiKey, 
+                            effectiveUserAgent, 
+                            bypassRobots, 
+                            true, // Force headless browser
+                            headlessFallbackOptions
+                        );
+                        
+                        // Make the request
+                        const headlessResponse = await fetch(headlessRequestUrl, {
+                            method: 'GET',
+                            headers: headers
+                        });
+                        
+                        if (!headlessResponse.ok) {
+                            throw new Error(`Headless browser request failed: ${headlessResponse.status}`);
+                        }
+                        
+                        html = await headlessResponse.text();
+                        usedFallback = true;
+                        
+                        // Add metadata about using headless browser
+                        scrapedData.metadata = scrapedData.metadata || {};
+                        scrapedData.metadata.usedHeadlessBrowser = true;
+                        
+                    } catch (headlessError) {
+                        console.error('Headless browser fallback failed:', headlessError.message);
+                        
+                        // If headless browser fails, try the original fallback method
+                        showStatus('Headless browser failed. Trying basic fallback method...', 'loading');
+                        try {
+                            html = await fallbackFetch(url, effectiveUserAgent);
+                            usedFallback = true;
+                            
+                            // Check if the fallback method returned limited content
+                            if (html.includes('Limited Access Mode') || html.length < 1000) {
+                                fallbackLimited = true;
+                                console.warn('Fallback method returned limited content');
+                            }
+                        } catch (fallbackError) {
+                            console.error('All fallback methods failed:', fallbackError.message);
+                            throw new Error(`All request methods failed. Original error: ${error.message}`);
+                        }
                     }
                 } else {
-                    // If fallback also failed, re-throw the original error
-                    throw primaryError;
+                    // If already using headless browser, try the original fallback
+                    showStatus('Primary request failed. Trying fallback method...', 'loading');
+                    try {
+                        html = await fallbackFetch(url, effectiveUserAgent);
+                        usedFallback = true;
+                        
+                        // Check if the fallback method returned limited content
+                        if (html.includes('Limited Access Mode') || html.length < 1000) {
+                            fallbackLimited = true;
+                            console.warn('Fallback method returned limited content');
+                        }
+                    } catch (fallbackError) {
+                        console.error('Fallback method failed:', fallbackError.message);
+                        throw new Error(`All request methods failed. Original error: ${error.message}`);
+                    }
                 }
             } else {
                 // If fallback is not enabled, just throw the original error
@@ -373,45 +533,21 @@ async function scrapeURL() {
             scrapedData.data.images = images;
         }
         
-        // Create the appropriate file format
-        let fileContent;
-        let mimeType;
+        // Get the selected export format
+        const exportFormat = document.querySelector('input[name="exportFormat"]:checked').value;
         
-        switch (selectedFormat) {
-            case 'json':
-                fileContent = JSON.stringify(scrapedData, null, 2);
-                mimeType = 'application/json';
-                break;
-            case 'csv':
-                fileContent = convertToCSV(scrapedData);
-                mimeType = 'text/csv';
-                break;
-            case 'txt':
-                fileContent = convertToPlainText(scrapedData);
-                mimeType = 'text/plain';
-                break;
-            default:
-                fileContent = JSON.stringify(scrapedData, null, 2);
-                mimeType = 'application/json';
+        // Export the data in the selected format
+        try {
+            await exportData(scrapedData, exportFormat, url);
+            
+            // Enable preview button
+            document.getElementById('previewButton').disabled = false;
+            
+            // Show success message
+            showStatus('Scraping completed successfully!', 'success');
+        } catch (error) {
+            showStatus(`Export error: ${error.message}`, 'error');
         }
-        
-        // Create a Blob from the content
-        const blob = new Blob([fileContent], { type: mimeType });
-        const downloadLink = document.getElementById('downloadLink');
-        const blobUrl = URL.createObjectURL(blob);
-
-        // Set the href attribute to the Blob URL
-        downloadLink.href = blobUrl;
-        downloadLink.download = `scraped_data.${selectedFormat}`;
-        
-        // Show the download section
-        document.getElementById('downloadSection').classList.add('visible');
-        
-        // Enable preview button
-        document.getElementById('previewButton').disabled = false;
-        
-        // Show success message
-        showStatus('Scraping completed successfully!', 'success');
 
     } catch (error) {
         console.error('There was a problem with the scraping operation:', error);
@@ -574,6 +710,125 @@ function convertToPlainText(data) {
     }
     
     return text;
+}
+
+/**
+ * Export the scraped data in the selected format
+ */
+async function exportData(data, format, url) {
+    let exportedData;
+    let filename;
+    let mimeType;
+    
+    // Handle database export
+    if (format === 'database') {
+        try {
+            const dbType = document.getElementById('dbType').value;
+            let connectionConfig = null;
+            
+            // Prepare connection config based on database type
+            switch (dbType) {
+                case 'mongodb':
+                    const mongoConnectionString = document.getElementById('mongoConnectionString').value;
+                    if (!mongoConnectionString) {
+                        throw new Error('MongoDB connection string is required');
+                    }
+                    connectionConfig = { connectionString: mongoConnectionString };
+                    break;
+                    
+                case 'mysql':
+                    const host = document.getElementById('mysqlHost').value || 'localhost';
+                    const port = document.getElementById('mysqlPort').value || '3306';
+                    const user = document.getElementById('mysqlUser').value;
+                    const password = document.getElementById('mysqlPassword').value;
+                    const database = document.getElementById('mysqlDatabase').value;
+                    
+                    if (!user || !database) {
+                        throw new Error('MySQL username and database name are required');
+                    }
+                    
+                    connectionConfig = {
+                        host,
+                        port: parseInt(port),
+                        user,
+                        password,
+                        database
+                    };
+                    break;
+                    
+                case 'sqlite':
+                    // No additional config needed for SQLite
+                    break;
+                    
+                default:
+                    throw new Error(`Unsupported database type: ${dbType}`);
+            }
+            
+            // Send data to server for database export
+            const response = await fetch('/export-to-db', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    url,
+                    data,
+                    dbType,
+                    connectionConfig
+                })
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to export to database');
+            }
+            
+            const result = await response.json();
+            showStatus(`${result.message} (ID: ${result.id})`, 'success');
+            return data;
+            
+        } catch (error) {
+            showStatus(`Database export error: ${error.message}`, 'error');
+            throw error;
+        }
+    }
+    
+    // Handle file exports
+    switch (format) {
+        case 'json':
+            exportedData = JSON.stringify(data, null, 2);
+            filename = 'scraped-data.json';
+            mimeType = 'application/json';
+            break;
+            
+        case 'csv':
+            exportedData = convertToCSV(data);
+            filename = 'scraped-data.csv';
+            mimeType = 'text/csv';
+            break;
+            
+        case 'txt':
+            exportedData = convertToPlainText(data);
+            filename = 'scraped-data.txt';
+            mimeType = 'text/plain';
+            break;
+            
+        default:
+            throw new Error(`Unsupported export format: ${format}`);
+    }
+    
+    // Create a download link
+    const blob = new Blob([exportedData], { type: mimeType });
+    const downloadUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    a.click();
+    
+    // Clean up
+    URL.revokeObjectURL(downloadUrl);
+    
+    return exportedData;
 }
 
 /**

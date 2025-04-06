@@ -65,10 +65,10 @@ fi
 function open_browser() {
     # Wait for server to start (up to 10 seconds)
     for i in {1..10}; do
-        if nc -z localhost 3000 &>/dev/null; then
+        if nc -z localhost 4200 &>/dev/null; then
             echo -e "${GREEN}Server is running!${NC}"
             echo -e "${BLUE}Opening Stealth Siphon in your default browser...${NC}"
-            open "http://localhost:3000"
+            open "http://localhost:4200"
             break
         fi
         sleep 1
@@ -79,7 +79,7 @@ function open_browser() {
 open_browser &
 
 # Start the server
-echo -e "${BLUE}Server starting at:${NC} http://localhost:3000"
+echo -e "${BLUE}Server starting at:${NC} http://localhost:4200"
 echo -e "${BLUE}Press Ctrl+C to stop the server${NC}"
 npm start
 

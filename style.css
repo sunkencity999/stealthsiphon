@@ -41,6 +41,26 @@ body {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
+/* Advanced options panel */
+.advanced-options {
+    background-color: #1e1e2e;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Headless browser options */
+#headlessBrowserOptions {
+    background-color: #252535;
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    border-left: 3px solid #7b68ee;
+    transition: all 0.3s ease;
+}
+
 h1 {
     font-weight: 700;
     font-size: 2.5rem;

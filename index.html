@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stealth Siphon | Advanced Web Scraper</title>
     <meta name="description" content="A powerful web scraping tool with advanced features and customizable options">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -28,6 +29,70 @@
                 <div class="input-group">
                     <label for="selectorInput">CSS Selector (optional)</label>
                     <input type="text" id="selectorInput" placeholder=".article, #content, etc.">
+                </div>
+                
+                <div class="export-options">
+                    <h3>Export Format</h3>
+                    <div class="radio-group">
+                        <input type="radio" id="jsonExport" name="exportFormat" value="json" checked>
+                        <label for="jsonExport">JSON</label>
+                    </div>
+                    
+                    <div class="radio-group">
+                        <input type="radio" id="csvExport" name="exportFormat" value="csv">
+                        <label for="csvExport">CSV</label>
+                    </div>
+                    
+                    <div class="radio-group">
+                        <input type="radio" id="txtExport" name="exportFormat" value="txt">
+                        <label for="txtExport">Plain Text</label>
+                    </div>
+                    
+                    <div class="radio-group">
+                        <input type="radio" id="dbExport" name="exportFormat" value="database">
+                        <label for="dbExport">Database</label>
+                    </div>
+                    
+                    <div id="databaseOptions" style="display: none; margin-top: 10px;">
+                        <div class="input-group">
+                            <label for="dbType">Database Type</label>
+                            <select id="dbType">
+                                <option value="sqlite">SQLite (Local)</option>
+                                <option value="mongodb">MongoDB</option>
+                                <option value="mysql">MySQL</option>
+                            </select>
+                        </div>
+                        
+                        <div id="mongoDbOptions" class="db-specific-options" style="display: none;">
+                            <div class="input-group">
+                                <label for="mongoConnectionString">Connection String</label>
+                                <input type="text" id="mongoConnectionString" placeholder="mongodb://username:password@host:port/database">
+                            </div>
+                        </div>
+                        
+                        <div id="mysqlOptions" class="db-specific-options" style="display: none;">
+                            <div class="input-group">
+                                <label for="mysqlHost">Host</label>
+                                <input type="text" id="mysqlHost" placeholder="localhost">
+                            </div>
+                            <div class="input-group">
+                                <label for="mysqlPort">Port</label>
+                                <input type="text" id="mysqlPort" placeholder="3306">
+                            </div>
+                            <div class="input-group">
+                                <label for="mysqlUser">Username</label>
+                                <input type="text" id="mysqlUser">
+                            </div>
+                            <div class="input-group">
+                                <label for="mysqlPassword">Password</label>
+                                <input type="password" id="mysqlPassword">
+                            </div>
+                            <div class="input-group">
+                                <label for="mysqlDatabase">Database</label>
+                                <input type="text" id="mysqlDatabase">
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="checkbox-group">
@@ -59,6 +124,42 @@
                 <div class="checkbox-group">
                     <input type="checkbox" id="rotateUserAgent" checked>
                     <label for="rotateUserAgent">Rotate User-Agents</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="useHeadlessBrowser">
+                    <label for="useHeadlessBrowser">Use Headless Browser (for JavaScript-rendered content)</label>
+                </div>
+                
+                <div class="checkbox-group">
+                    <input type="checkbox" id="useEnhancedFallback" checked>
+                    <label for="useEnhancedFallback">Use Enhanced Fallback (recommended for CORS issues)</label>
+                </div>
+                
+                <div id="headlessBrowserOptions" style="display: none; margin-left: 25px;">
+                    <div class="input-group">
+                        <label for="waitForSelector">Wait for Selector (optional)</label>
+                        <input type="text" id="waitForSelector" placeholder=".content, #main, etc.">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="waitTime">Additional Wait Time (ms)</label>
+                        <input type="number" id="waitTime" min="0" max="10000" value="1000">
+                    </div>
+                    
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="fullPageScreenshot">
+                        <label for="fullPageScreenshot">Capture Full Page</label>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="extractFormat">Extract Format</label>
+                        <select id="extractFormat">
+                            <option value="html">HTML</option>
+                            <option value="text">Text Only</option>
+                            <option value="screenshot">Screenshot</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div class="input-group">

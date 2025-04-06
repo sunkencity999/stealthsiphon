@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background -->
+  <rect width="512" height="512" rx="64" fill="#1e1e2e"/>
+  
+  <!-- Funnel/Siphon shape -->
+  <path d="M384 128H128L256 320V416" stroke="#7b68ee" stroke-width="32" stroke-linecap="round" fill="none"/>
+  
+  <!-- Data flow lines -->
+  <path d="M128 192L384 192" stroke="#7b68ee" stroke-width="16" stroke-linecap="round" stroke-opacity="0.7"/>
+  <path d="M160 256L352 256" stroke="#7b68ee" stroke-width="16" stroke-linecap="round" stroke-opacity="0.7"/>
+  
+  <!-- Data particles -->
+  <circle cx="256" cy="352" r="16" fill="#7b68ee"/>
+  <circle cx="256" cy="384" r="12" fill="#7b68ee" fill-opacity="0.8"/>
+  <circle cx="256" cy="416" r="8" fill="#7b68ee" fill-opacity="0.6"/>
+  <circle cx="256" cy="440" r="6" fill="#7b68ee" fill-opacity="0.4"/>
+  
+  <!-- Web symbol -->
+  <circle cx="256" cy="112" r="48" fill="none" stroke="#7b68ee" stroke-width="16"/>
+  <path d="M256 64 V160" stroke="#7b68ee" stroke-width="8" stroke-opacity="0.7"/>
+  <path d="M208 112 H304" stroke="#7b68ee" stroke-width="8" stroke-opacity="0.7"/>
+  <path d="M220 80 L292 144" stroke="#7b68ee" stroke-width="8" stroke-opacity="0.7"/>
+  <path d="M292 80 L220 144" stroke="#7b68ee" stroke-width="8" stroke-opacity="0.7"/>
+  
+  <!-- Stealth element (shadow) -->
+  <path d="M128 128 L384 128 L256 320 Z" fill="#7b68ee" fill-opacity="0.15"/>
+</svg>
