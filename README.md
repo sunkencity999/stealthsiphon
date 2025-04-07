@@ -2,6 +2,8 @@
 
 Advanced web scraping tool with built-in proxy server, headless browser integration, and automated scheduling capabilities.
 
+![Stealth Siphon Screenshot](image/base.png)
+
 ## Created by Christopher Bradford
 
 ## Features
