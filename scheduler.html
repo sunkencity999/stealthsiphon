@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stealth Siphon | Task Scheduler</title>
+    <meta name="description" content="Schedule recurring web scraping tasks">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="alternate icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="scheduler.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Stealth Siphon Scheduler</h1>
+            <p>Schedule recurring web scraping tasks for automated site analysis</p>
+            <nav>
+                <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                <a href="scheduler.html" class="nav-link active"><i class="fas fa-calendar"></i> Scheduler</a>
+                <a href="landing.html" class="nav-link"><i class="fas fa-info-circle"></i> About</a>
+            </nav>
+        </header>
+
+        <main>
+            <section class="tasks-section">
+                <div class="section-header">
+                    <h2>Scheduled Tasks</h2>
+                    <button id="newTaskBtn" class="primary-button">
+                        <i class="fas fa-plus"></i> New Task
+                    </button>
+                </div>
+                
+                <div class="tasks-container">
+                    <div id="tasksList" class="tasks-list">
+                        <!-- Tasks will be loaded here dynamically -->
+                        <div class="loading-indicator">
+                            <i class="fas fa-spinner fa-spin"></i> Loading tasks...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Task Form Modal -->
+            <div id="taskModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="modalTitle">Create New Task</h3>
+                        <button class="close-button" id="closeModal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="taskForm">
+                            <input type="hidden" id="taskId">
+                            
+                            <div class="form-group">
+                                <label for="taskName">Task Name*</label>
+                                <input type="text" id="taskName" required placeholder="Daily News Scraper">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="taskUrl">URL to Scrape*</label>
+                                <input type="url" id="taskUrl" required placeholder="https://example.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="scheduleType">Schedule Type*</label>
+                                <select id="scheduleType" required>
+                                    <option value="preset">Common Schedule</option>
+                                    <option value="custom">Custom (Advanced)</option>
+                                </select>
+                            </div>
+                            
+                            <div id="presetScheduleOptions" class="form-group">
+                                <label for="presetSchedule">Select Schedule*</label>
+                                <select id="presetSchedule" required>
+                                    <option value="hourly">Hourly</option>
+                                    <option value="daily">Daily</option>
+                                    <option value="daily-morning">Daily (Morning)</option>
+                                    <option value="daily-evening">Daily (Evening)</option>
+                                    <option value="weekdays">Weekdays Only</option>
+                                    <option value="weekends">Weekends Only</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                                
+                                <div id="timeSelectionDaily" class="nested-options">
+                                    <label for="dailyTime">Time</label>
+                                    <input type="time" id="dailyTime" value="09:00">
+                                </div>
+                                
+                                <div id="weeklyOptions" class="nested-options" style="display: none;">
+                                    <label for="weeklyDay">Day of Week</label>
+                                    <select id="weeklyDay">
+                                        <option value="1">Monday</option>
+                                        <option value="2">Tuesday</option>
+                                        <option value="3">Wednesday</option>
+                                        <option value="4">Thursday</option>
+                                        <option value="5">Friday</option>
+                                        <option value="6">Saturday</option>
+                                        <option value="0">Sunday</option>
+                                    </select>
+                                    <label for="weeklyTime">Time</label>
+                                    <input type="time" id="weeklyTime" value="09:00">
+                                </div>
+                                
+                                <div id="monthlyOptions" class="nested-options" style="display: none;">
+                                    <label for="monthlyDay">Day of Month</label>
+                                    <select id="monthlyDay">
+                                        <option value="1">1st</option>
+                                        <option value="15">15th</option>
+                                        <option value="L">Last Day</option>
+                                    </select>
+                                    <label for="monthlyTime">Time</label>
+                                    <input type="time" id="monthlyTime" value="09:00">
+                                </div>
+                            </div>
+                            
+                            <div id="customScheduleOptions" class="form-group" style="display: none;">
+                                <label for="taskSchedule">Cron Expression*</label>
+                                <input type="text" id="taskSchedule" placeholder="0 0 * * *">
+                                <div class="help-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Examples: <code>0 0 * * *</code> (daily at midnight), 
+                                    <code>0 */6 * * *</code> (every 6 hours), 
+                                    <code>0 9 * * 1-5</code> (weekdays at 9am)
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="taskSelector">CSS Selector (optional)</label>
+                                <input type="text" id="taskSelector" placeholder=".article, #content">
+                                <div class="help-text">Extract only content matching this selector</div>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="taskActive" checked>
+                                <label for="taskActive">Active</label>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="taskHeadlessBrowser">
+                                <label for="taskHeadlessBrowser">Use Headless Browser</label>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="taskFollowLinks">
+                                <label for="taskFollowLinks">Follow Links</label>
+                                <div class="help-text">Crawl and scrape linked pages</div>
+                            </div>
+                            
+                            <div id="linkFollowingOptions" class="nested-options" style="display: none;">
+                                <div class="form-group">
+                                    <label for="taskLinkDepth">Link Depth</label>
+                                    <select id="taskLinkDepth">
+                                        <option value="1">1 - Only direct links</option>
+                                        <option value="2" selected>2 - Links of links</option>
+                                        <option value="3">3 - Deep crawl (use carefully)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="taskOutputFormat">Output Format</label>
+                                <select id="taskOutputFormat">
+                                    <option value="auto">Auto (Default)</option>
+                                    <option value="html">HTML</option>
+                                    <option value="text">Text</option>
+                                    <option value="json">JSON</option>
+                                </select>
+                                <div class="help-text">Format to save scraped content</div>
+                            </div>
+                            
+                            <div id="headlessOptions" class="nested-options" style="display: none;">
+                                <div class="form-group">
+                                    <label for="taskWaitForSelector">Wait for Selector (optional)</label>
+                                    <input type="text" id="taskWaitForSelector" placeholder=".content, #main">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="taskWaitTime">Wait Time (ms)</label>
+                                    <input type="number" id="taskWaitTime" value="1000" min="0" max="10000">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="taskExtractFormat">Extract Format</label>
+                                    <select id="taskExtractFormat">
+                                        <option value="html">HTML</option>
+                                        <option value="text">Text Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group checkbox-group">
+                                <input type="checkbox" id="taskBypassRobots" checked>
+                                <label for="taskBypassRobots">Bypass robots.txt</label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="taskUserAgent">User Agent (optional)</label>
+                                <input type="text" id="taskUserAgent" placeholder="Mozilla/5.0...">
+                                <div class="help-text">Leave blank to use a random user agent</div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="primary-button">Save Task</button>
+                                <button type="button" id="cancelButton" class="secondary-button">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Task Details Modal -->
+            <div id="detailsModal" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="detailsTitle">Task Details</h3>
+                        <button class="close-button" id="closeDetailsModal">&times;</button>
+                    </div>
+                    <div class="modal-body" id="taskDetails">
+                        <!-- Task details will be loaded here dynamically -->
+                    </div>
+                    <div class="modal-footer">
+                        <button id="editTaskBtn" class="secondary-button">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button id="runTaskBtn" class="primary-button">
+                            <i class="fas fa-play"></i> Run Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Confirmation Modal -->
+            <div id="confirmModal" class="modal">
+                <div class="modal-content confirm-modal">
+                    <div class="modal-header">
+                        <h3>Confirm Action</h3>
+                        <button class="close-button" id="closeConfirmModal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="confirmMessage">Are you sure you want to delete this task?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="cancelConfirmBtn" class="secondary-button">Cancel</button>
+                        <button id="confirmActionBtn" class="danger-button">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>Created by Christopher Bradford | Stealth Siphon &copy; 2025</p>
+        </footer>
+    </div>
+    
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <script src="scheduler-ui.js"></script>
+</body>
+</html>

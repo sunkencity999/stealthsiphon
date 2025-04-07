@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stealth Siphon | Advanced Web Scraping Tool</title>
+    <meta name="description" content="Stealth Siphon is an advanced web scraping tool with built-in proxy server, headless browser integration, and automated scheduling capabilities.">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="alternate icon" href="favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="favicon.svg" alt="Stealth Siphon Logo" width="48" height="48">
+                <h1>Stealth Siphon</h1>
+            </div>
+            <nav>
+                <a href="index.html" class="nav-link"><i class="fas fa-home"></i> App</a>
+                <a href="scheduler.html" class="nav-link"><i class="fas fa-calendar"></i> Scheduler</a>
+                <a href="#" class="nav-link active"><i class="fas fa-info-circle"></i> About</a>
+            </nav>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h2>Advanced Web Scraping Tool</h2>
+                <p>Extract data from any website with powerful features to bypass common anti-scraping measures</p>
+                <div class="cta-buttons">
+                    <a href="index.html" class="primary-button">Launch App</a>
+                    <a href="#features" class="secondary-button">Learn More</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section id="features" class="features">
+        <div class="container">
+            <h2>Key Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <i class="fas fa-browser"></i>
+                    <h3>Client-Side Scraping</h3>
+                    <p>Extract data directly in the browser with multiple export formats (JSON, CSV, TXT, HTML)</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-server"></i>
+                    <h3>Built-in Proxy Server</h3>
+                    <p>No reliance on external CORS services, making your scraping more reliable and private</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-robot"></i>
+                    <h3>Headless Browser</h3>
+                    <p>Scrape JavaScript-rendered content with Puppeteer and automatic fallback mechanisms</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-database"></i>
+                    <h3>Database Export</h3>
+                    <p>Export scraped data directly to SQLite, MongoDB, or MySQL databases</p>
+                </div>
+                
+                <div class="feature-card highlight">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3>Scheduled Scraping</h3>
+                    <p>Set up recurring scraping tasks with a user-friendly interface - no cron knowledge required</p>
+                </div>
+                
+                <div class="feature-card highlight">
+                    <i class="fas fa-sitemap"></i>
+                    <h3>Deep Link Following</h3>
+                    <p>Automatically crawl and scrape linked pages up to 3 levels deep for comprehensive data collection</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3>Anti-Detection Measures</h3>
+                    <p>Bypass common anti-scraping techniques with user-agent rotation, request delays, and more</p>
+                </div>
+                
+                <div class="feature-card">
+                    <i class="fas fa-moon"></i>
+                    <h3>Modern Dark UI</h3>
+                    <p>Clean, minimalist design with excellent typography and responsive layout</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="scheduler-showcase">
+        <div class="container">
+            <h2>Powerful Scheduler</h2>
+            <div class="showcase-content">
+                <div class="showcase-text">
+                    <h3>Automate Your Web Scraping</h3>
+                    <ul>
+                        <li><i class="fas fa-check"></i> User-friendly scheduling interface with common presets</li>
+                        <li><i class="fas fa-check"></i> Deep link following to crawl related pages</li>
+                        <li><i class="fas fa-check"></i> Multiple output formats (HTML, Text, JSON)</li>
+                        <li><i class="fas fa-check"></i> Detailed execution history and statistics</li>
+                        <li><i class="fas fa-check"></i> Run tasks immediately or on schedule</li>
+                    </ul>
+                    <a href="scheduler.html" class="primary-button">Try the Scheduler</a>
+                </div>
+                <div class="showcase-image">
+                    <img src="scheduler-preview.png" alt="Stealth Siphon Scheduler Interface" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="installation">
+        <div class="container">
+            <h2>Installation</h2>
+            <div class="installation-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Clone the Repository</h3>
+                        <pre><code>git clone https://github.com/yourusername/stealthsiphon.git</code></pre>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Install Dependencies</h3>
+                        <pre><code>cd stealthsiphon
+npm install</code></pre>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Start the Server</h3>
+                        <pre><code>node server.js</code></pre>
+                        <p>Access Stealth Siphon at <a href="http://localhost:4200">http://localhost:4200</a></p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Or Use the Installer</h3>
+                        <pre><code>curl -s https://raw.githubusercontent.com/yourusername/stealthsiphon/main/install.sh | bash</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="updates">
+        <div class="container">
+            <h2>Recent Updates</h2>
+            <div class="update-timeline">
+                <div class="update-item">
+                    <div class="update-version">v1.3.0</div>
+                    <div class="update-content">
+                        <h3>April 2025</h3>
+                        <ul>
+                            <li>Added deep link following capability</li>
+                            <li>Implemented user-friendly scheduling interface</li>
+                            <li>Added output format selection for scheduled tasks</li>
+                            <li>Enhanced task details view</li>
+                            <li>Fixed event handling for task actions</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="update-item">
+                    <div class="update-version">v1.2.0</div>
+                    <div class="update-content">
+                        <h3>April 2025</h3>
+                        <ul>
+                            <li>Added scheduled scraping functionality</li>
+                            <li>Implemented task scheduler with cron-based scheduling</li>
+                            <li>Added dedicated scheduler UI</li>
+                            <li>Integrated navigation bar for easier access</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="update-item">
+                    <div class="update-version">v1.1.0</div>
+                    <div class="update-content">
+                        <h3>April 2025</h3>
+                        <ul>
+                            <li>Changed default port from 3000 to 4200</li>
+                            <li>Added custom SVG favicon</li>
+                            <li>Implemented database export functionality</li>
+                            <li>Enhanced headless browser implementation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="favicon.svg" alt="Stealth Siphon Logo" width="32" height="32">
+                    <span>Stealth Siphon</span>
+                </div>
+                <div class="footer-links">
+                    <a href="index.html">App</a>
+                    <a href="scheduler.html">Scheduler</a>
+                    <a href="#">About</a>
+                    <a href="https://github.com/yourusername/stealthsiphon">GitHub</a>
+                </div>
+                <div class="footer-credit">
+                    <p>Created by Christopher Bradford</p>
+                    <p>&copy; 2025 Stealth Siphon</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

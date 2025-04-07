@@ -2,10 +2,12 @@ const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
 const path = require('path');
+const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 const mongoose = require('mongoose');
 const mysql = require('mysql2/promise');
 const headlessBrowser = require('./headless-browser');
+const scheduler = require('./scheduler');
 const app = express();
 const PORT = process.env.PORT || 4200;
 
@@ -331,9 +333,139 @@ app.post('/export-to-db', express.json(), async (req, res) => {
     }
 });
 
-// Fallback route to serve index.html for all other routes
+// Scheduler API endpoints
+
+// Scrape with headless browser
+app.post('/api/scrape/headless', async (req, res) => {
+    try {
+        const result = await headlessBrowser.scrapeWithHeadlessBrowser(req.body);
+        res.json(result);
+    } catch (error) {
+        console.error('Error in headless scraping:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Scrape with link following (deep scraping)
+app.post('/api/scrape/deep', async (req, res) => {
+    try {
+        const { url, depth = 2, ...options } = req.body;
+        
+        // Limit depth to a reasonable value (1-3)
+        const safeDepth = Math.min(Math.max(parseInt(depth) || 1, 1), 3);
+        
+        const results = await headlessBrowser.followLinksAndScrape(url, safeDepth, options);
+        res.json({ success: true, results });
+    } catch (error) {
+        console.error('Error in deep scraping:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Get all scheduled tasks
+app.get('/api/scheduler/tasks', (req, res) => {
+    try {
+        const tasks = scheduler.getAllTasks();
+        res.json(tasks);
+    } catch (error) {
+        console.error('Error getting tasks:', error);
+        res.status(500).json({ error: 'Failed to get tasks', message: error.message });
+    }
+});
+
+// Get a specific task
+app.get('/api/scheduler/tasks/:id', (req, res) => {
+    try {
+        const task = scheduler.getTask(req.params.id);
+        
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        res.json(task);
+    } catch (error) {
+        console.error(`Error getting task ${req.params.id}:`, error);
+        res.status(500).json({ error: 'Failed to get task', message: error.message });
+    }
+});
+
+// Create a new scheduled task
+app.post('/api/scheduler/tasks', (req, res) => {
+    try {
+        const taskConfig = req.body;
+        
+        // Validate required fields
+        if (!taskConfig.name || !taskConfig.url || !taskConfig.schedule) {
+            return res.status(400).json({ error: 'Missing required fields: name, url, schedule' });
+        }
+        
+        const task = scheduler.scheduleTask(taskConfig);
+        res.status(201).json(task);
+    } catch (error) {
+        console.error('Error creating task:', error);
+        res.status(500).json({ error: 'Failed to create task', message: error.message });
+    }
+});
+
+// Update an existing task
+app.put('/api/scheduler/tasks/:id', (req, res) => {
+    try {
+        const updates = req.body;
+        const updatedTask = scheduler.updateTask(req.params.id, updates);
+        
+        if (!updatedTask) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        res.json(updatedTask);
+    } catch (error) {
+        console.error(`Error updating task ${req.params.id}:`, error);
+        res.status(500).json({ error: 'Failed to update task', message: error.message });
+    }
+});
+
+// Delete a task
+app.delete('/api/scheduler/tasks/:id', (req, res) => {
+    try {
+        const success = scheduler.deleteTask(req.params.id);
+        
+        if (!success) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        res.status(204).end();
+    } catch (error) {
+        console.error(`Error deleting task ${req.params.id}:`, error);
+        res.status(500).json({ error: 'Failed to delete task', message: error.message });
+    }
+});
+
+// Run a task immediately
+app.post('/api/scheduler/tasks/:id/run', (req, res) => {
+    try {
+        const success = scheduler.runTaskNow(req.params.id);
+        
+        if (!success) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        res.json({ message: 'Task execution triggered' });
+    } catch (error) {
+        console.error(`Error running task ${req.params.id}:`, error);
+        res.status(500).json({ error: 'Failed to run task', message: error.message });
+    }
+});
+
+// Serve the main HTML file as a catch-all route (must be after all API routes)
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+    // Check if the request is for a file that exists
+    const filePath = path.join(__dirname, req.path);
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+        res.sendFile(filePath);
+    } else {
+        // Default to index.html for the SPA
+        res.sendFile(path.join(__dirname, 'index.html'));
+    }
 });
 
 // Start the server
@@ -341,4 +473,5 @@ app.listen(PORT, () => {
     console.log(`Stealth Siphon server running on http://localhost:${PORT}`);
     console.log(`Access the proxy via http://localhost:${PORT}/proxy?url=https://example.com`);
     console.log(`Access the headless browser via http://localhost:${PORT}/headless-proxy?url=https://example.com`);
+    console.log(`Scheduler API available at http://localhost:${PORT}/api/scheduler/tasks`);
 });

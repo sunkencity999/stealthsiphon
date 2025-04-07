@@ -52,6 +52,10 @@ browser_data/
 *.sqlite3
 scraper_data.db
 
+# Scheduled tasks and results
+scheduled_tasks/
+scheduled_results/
+
 # Runtime data
 pids
 *.pid

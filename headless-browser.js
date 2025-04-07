@@ -58,6 +58,100 @@ async function closeBrowser() {
 }
 
 /**
+ * Extract links from HTML content
+ * @param {string} html - The HTML content
+ * @param {string} baseUrl - The base URL for resolving relative links
+ * @returns {Array<string>} - Array of extracted links
+ */
+function extractLinks(html, baseUrl) {
+    const links = [];
+    const linkRegex = /<a[^>]+href=['"]([^'"]+)['"][^>]*>/gi;
+    let match;
+    
+    while ((match = linkRegex.exec(html)) !== null) {
+        let link = match[1];
+        
+        // Skip anchor links, javascript, and mailto
+        if (link.startsWith('#') || link.startsWith('javascript:') || link.startsWith('mailto:')) {
+            continue;
+        }
+        
+        // Resolve relative URLs
+        if (!link.startsWith('http')) {
+            try {
+                link = new URL(link, baseUrl).href;
+            } catch (e) {
+                continue; // Skip invalid URLs
+            }
+        }
+        
+        // Only include links from the same domain
+        try {
+            const baseUrlObj = new URL(baseUrl);
+            const linkUrlObj = new URL(link);
+            
+            if (baseUrlObj.hostname === linkUrlObj.hostname) {
+                links.push(link);
+            }
+        } catch (e) {
+            continue; // Skip invalid URLs
+        }
+    }
+    
+    // Remove duplicates
+    return [...new Set(links)];
+}
+
+/**
+ * Follow links and scrape their content
+ * @param {string} baseUrl - The starting URL
+ * @param {number} depth - How deep to follow links (1-3)
+ * @param {Object} options - Scraping options
+ * @returns {Object} - The scraped content from all pages
+ */
+async function followLinksAndScrape(baseUrl, depth, options) {
+    const visited = new Set();
+    const results = {};
+    
+    async function crawl(url, currentDepth) {
+        if (visited.has(url) || currentDepth > depth) {
+            return;
+        }
+        
+        visited.add(url);
+        console.log(`[Crawler] Scraping ${url} (depth: ${currentDepth}/${depth})`);
+        
+        try {
+            // Scrape the current page
+            const result = await scrapeWithHeadlessBrowser({
+                ...options,
+                url: url
+            });
+            
+            if (result.success) {
+                results[url] = result.content;
+                
+                // If we haven't reached max depth, extract links and follow them
+                if (currentDepth < depth) {
+                    const links = extractLinks(result.content, url);
+                    console.log(`[Crawler] Found ${links.length} links on ${url}`);
+                    
+                    // Follow each link
+                    for (const link of links) {
+                        await crawl(link, currentDepth + 1);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error(`[Crawler] Error crawling ${url}:`, error);
+        }
+    }
+    
+    await crawl(baseUrl, 1);
+    return results;
+}
+
+/**
  * Scrape content from a URL using headless browser
  * @param {Object} options - Scraping options
  * @returns {Promise<Object>} - The scraped content and metadata
@@ -223,11 +317,11 @@ process.on('SIGINT', async () => {
 
 process.on('SIGTERM', async () => {
     await closeBrowser();
-    process.exit(0);
 });
 
 module.exports = {
-    initBrowser,
-    closeBrowser,
-    scrapeWithHeadlessBrowser
+initBrowser,
+scrapeWithHeadlessBrowser,
+followLinksAndScrape,
+closeBrowser
 };

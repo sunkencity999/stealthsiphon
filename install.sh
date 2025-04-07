@@ -104,6 +104,12 @@ if [ "$DOWNLOAD_DIRECT" = true ]; then
         "README.md"
         "landing.html"
         "landing.css"
+        "favicon.svg"
+        "headless-browser.js"
+        "scheduler.js"
+        "scheduler-ui.js"
+        "scheduler.html"
+        "scheduler.css"
     )
     
     BASE_URL="https://raw.githubusercontent.com/yourusername/stealthsiphon/main"
@@ -114,17 +120,38 @@ if [ "$DOWNLOAD_DIRECT" = true ]; then
     done
 fi
 
+# Create necessary directories
+echo "Creating required directories..."
+mkdir -p scheduled_tasks scheduled_results
+
 # Install dependencies
 echo "Installing dependencies..."
-npm install
+npm install express cors axios cheerio node-cron uuid puppeteer sqlite3 mongoose mysql2
 
 # Start the application
 echo -e "${GREEN}Installation complete!${NC}"
 echo "Starting Stealth Siphon..."
 echo ""
-echo -e "${BLUE}You can access Stealth Siphon at:${NC} http://localhost:3000"
+echo -e "${BLUE}You can access Stealth Siphon at:${NC} http://localhost:4200"
 echo -e "${BLUE}To stop the server, press:${NC} Ctrl+C"
 echo ""
 
+# Create launcher scripts based on OS
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS launcher
+    echo "#!/bin/bash" > start-stealthsiphon.command
+    echo "cd \"\$(dirname \"\$0\")\"" >> start-stealthsiphon.command
+    echo "node server.js" >> start-stealthsiphon.command
+    chmod +x start-stealthsiphon.command
+    echo -e "${GREEN}Created macOS launcher: start-stealthsiphon.command${NC}"
+fi
+
+# Linux launcher
+echo "#!/bin/bash" > start-stealthsiphon.sh
+echo "cd \"\$(dirname \"\$0\")\"" >> start-stealthsiphon.sh
+echo "node server.js" >> start-stealthsiphon.sh
+chmod +x start-stealthsiphon.sh
+echo -e "${GREEN}Created Linux launcher: start-stealthsiphon.sh${NC}"
+
 # Run the application
-npm start
+node server.js
