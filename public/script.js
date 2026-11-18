@@ -198,66 +198,12 @@ function prepareRequestUrl(originalUrl, useProxy, proxyUrl, proxyApiKey, userAge
 }
 
 /**
- * Fallback method to fetch content when proxies fail
- * Note: This has limited capabilities due to CORS restrictions
+ * Fallback when the built-in proxy fails. Public third-party CORS proxies were
+ * removed: they leaked every target URL to unknown services and bypassed the
+ * server's robots.txt and network-safety checks.
  */
-async function fallbackFetch(url, userAgent) {
-    console.log('Using fallback fetch method for:', url);
-    
-    // Try using a public CORS proxy if available
-    const publicProxies = [
-        'https://corsproxy.io/?',
-        'https://api.allorigins.win/raw?url=',
-        'https://api.codetabs.com/v1/proxy?quest=',
-        'https://cors-anywhere.herokuapp.com/'
-    ];
-    
-    // Try each proxy in order
-    for (const proxy of publicProxies) {
-        try {
-            console.log(`Trying public proxy: ${proxy}`);
-            const response = await fetch(proxy + encodeURIComponent(url), {
-                headers: {
-                    'User-Agent': userAgent,
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Origin': window.location.origin
-                }
-            });
-            
-            if (response.ok) {
-                const content = await response.text();
-                if (content.length > 500) { // Basic check to ensure we got meaningful content
-                    console.log('Fallback fetch successful with proxy:', proxy);
-                    return content;
-                }
-            }
-        } catch (error) {
-            console.warn(`Proxy ${proxy} failed:`, error.message);
-            // Continue to next proxy
-        }
-    }
-    
-    // If all proxies fail, try a direct fetch with no-cors mode
-    // This will have very limited capabilities
-    console.log('All proxies failed, trying direct fetch with no-cors mode');
-    
-    try {
-        const response = await fetch(url, {
-            mode: 'no-cors',
-            headers: {
-                'User-Agent': userAgent,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-        
-        // Note: With no-cors, we can't actually read the response content
-        // So we return a limited mode message
-        return '<html><body><h1>Limited Access Mode</h1><p>The content was fetched in limited mode due to CORS restrictions.</p><p>Try using the headless browser option for better results.</p></body></html>';
-        
-    } catch (error) {
-        console.error('Direct fetch also failed:', error.message);
-        throw new Error('All fallback methods failed');
-    }
+async function fallbackFetch(url) {
+    throw new Error(`Could not fetch ${url} through the StealthSiphon server. Check the error above, try the headless browser option, or enable "Bypass robots.txt" if you have permission.`);
 }
 
 /**

@@ -90,68 +90,22 @@ else
     DOWNLOAD_DIRECT=true
 fi
 
-# Download files directly if needed
 if [ "$DOWNLOAD_DIRECT" = true ]; then
-    echo "Downloading Stealth Siphon files..."
-    
-    # List of files to download
-    FILES=(
-        "index.html"
-        "style.css"
-        "script.js"
-        "server.js"
-        "package.json"
-        "README.md"
-        "landing.html"
-        "landing.css"
-        "favicon.svg"
-        "headless-browser.js"
-        "scheduler.js"
-        "scheduler-ui.js"
-        "scheduler.html"
-        "scheduler.css"
-    )
-    
-    BASE_URL="https://raw.githubusercontent.com/yourusername/stealthsiphon/main"
-    
-    for file in "${FILES[@]}"; do
-        echo "Downloading $file..."
-        curl -s "$BASE_URL/$file" -o "$file"
-    done
+    echo "Error: git is required to install Stealth Siphon (direct download is not supported)."
+    exit 1
 fi
 
-# Create necessary directories
-echo "Creating required directories..."
-mkdir -p scheduled_tasks scheduled_results
-
-# Install dependencies
+# Install dependencies from package.json (uses your installed Google Chrome; no browser download)
 echo "Installing dependencies..."
-npm install express cors axios cheerio node-cron uuid puppeteer sqlite3 mongoose mysql2
+PUPPETEER_SKIP_DOWNLOAD=1 npm install
 
-# Start the application
 echo -e "${GREEN}Installation complete!${NC}"
-echo "Starting Stealth Siphon..."
 echo ""
-echo -e "${BLUE}You can access Stealth Siphon at:${NC} http://localhost:4200"
+echo -e "${BLUE}Web UI / REST API:${NC} http://localhost:4200"
+echo -e "${BLUE}MCP (Claude Code):${NC} claude mcp add stealthsiphon -- node \"$(pwd)/bin/mcp.js\""
 echo -e "${BLUE}To stop the server, press:${NC} Ctrl+C"
 echo ""
 
-# Create launcher scripts based on OS
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # macOS launcher
-    echo "#!/bin/bash" > start-stealthsiphon.command
-    echo "cd \"\$(dirname \"\$0\")\"" >> start-stealthsiphon.command
-    echo "node server.js" >> start-stealthsiphon.command
-    chmod +x start-stealthsiphon.command
-    echo -e "${GREEN}Created macOS launcher: start-stealthsiphon.command${NC}"
-fi
+chmod +x start-stealthsiphon.sh start-stealthsiphon.command bin/*.js 2>/dev/null
 
-# Linux launcher
-echo "#!/bin/bash" > start-stealthsiphon.sh
-echo "cd \"\$(dirname \"\$0\")\"" >> start-stealthsiphon.sh
-echo "node server.js" >> start-stealthsiphon.sh
-chmod +x start-stealthsiphon.sh
-echo -e "${GREEN}Created Linux launcher: start-stealthsiphon.sh${NC}"
-
-# Run the application
-node server.js
+npm start

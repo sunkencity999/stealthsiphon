@@ -3,7 +3,6 @@ node_modules/
 npm-debug.log
 yarn-debug.log
 yarn-error.log
-package-lock.json
 yarn.lock
 
 # Environment variables
@@ -54,6 +53,7 @@ scraper_data.db
 
 # Scheduled tasks and results
 scheduled_tasks/
+data/
 scheduled_results/
 
 # Runtime data
