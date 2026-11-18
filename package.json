@@ -1,6 +1,6 @@
 {
   "name": "stealth-siphon",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Web scraping toolkit for humans and AI agents: clean Markdown, structured extraction, crawling, headless browser sessions, change monitoring, REST API and MCP server",
   "main": "src/server.js",
   "scripts": {

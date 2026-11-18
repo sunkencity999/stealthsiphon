@@ -3,287 +3,434 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stealth Siphon | Advanced Web Scraper</title>
-    <meta name="description" content="A powerful web scraping tool with built-in proxy server and advanced features">
-    <link rel="stylesheet" href="landing.css">
+    <title>Stealth Siphon | The web, made readable for your agents</title>
+    <meta name="description" content="Stealth Siphon is a local web toolkit for AI agents: clean Markdown, structured extraction, crawling, headless browser sessions and change monitoring over MCP, REST, CLI and a web UI. Works with LM Studio and Ollama.">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="alternate icon" href="favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="landing.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="logo">
-                <i class="fas fa-spider"></i>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="#top" class="logo">
+                <img src="favicon.svg" alt="" width="28" height="28">
                 <span>Stealth Siphon</span>
-            </div>
-            <button class="mobile-menu-toggle" id="menuToggle">
+            </a>
+            <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mainNav">
                 <i class="fas fa-bars"></i>
             </button>
-            <nav id="mainNav">
-                <ul>
-                    <li><a href="#features">Features</a></li>
-                    <li><a href="#installation">Installation</a></li>
-                    <li><a href="#documentation">Documentation</a></li>
-                    <li><a href="https://github.com/sunkencity999/stealthsiphon" target="_blank" class="github-link">
-                        <i class="fab fa-github"></i> GitHub
-                    </a></li>
-                </ul>
+            <nav id="mainNav" class="main-nav">
+                <a href="#why">Why</a>
+                <a href="#features">Features</a>
+                <a href="#tutorial">Tutorial</a>
+                <a href="#tools">Tools</a>
+                <a href="#llm">Local LLMs</a>
+                <a href="#security">Security</a>
+                <a href="https://github.com/sunkencity999/stealthsiphon" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+                <a href="index.html" class="btn btn-small btn-primary">Open the app</a>
             </nav>
         </div>
     </header>
 
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1>Advanced Web Scraping <span>Without Limitations</span></h1>
-                <p>A powerful web scraper with a built-in proxy server, advanced countermeasures, and a beautiful dark-themed UI.</p>
-                <div class="cta-buttons">
-                    <a href="#installation" class="btn primary">Get Started</a>
-                    <a href="https://github.com/sunkencity999/stealthsiphon" class="btn secondary">View on GitHub</a>
+    <main id="top">
+        <!-- HERO -->
+        <section class="hero">
+            <div class="container hero-grid">
+                <div class="hero-copy">
+                    <p class="eyebrow">MCP server · REST API · CLI · Web UI</p>
+                    <h1>The web, made <span class="accent">readable</span> for your agents.</h1>
+                    <p class="lede">Stealth Siphon gives an AI agent clean, compact Markdown instead of raw HTML. It also renders JavaScript apps in a real browser, extracts structured data, crawls within the limits you set, drives logins and forms, and watches pages for changes. Everything runs on your machine, with LM Studio or Ollama for local-model extraction.</p>
+                    <div class="cta-row">
+                        <a href="#tutorial" class="btn btn-primary"><i class="fas fa-plug"></i> Connect your agent</a>
+                        <a href="index.html" class="btn btn-ghost"><i class="fas fa-window-maximize"></i> Open the web app</a>
+                    </div>
                 </div>
-            </div>
-            <div class="hero-image">
-                <img src="/image/base.png" alt="Stealth Siphon Screenshot">
-            </div>
-        </div>
-    </section>
+                <div class="terminal" aria-label="Example: registering the MCP server and a fetch_page result">
+                    <div class="terminal-bar"><span></span><span></span><span></span><em>terminal</em></div>
+<pre><code><span class="c-prompt">$</span> claude mcp add stealthsiphon -- \
+    node ~/stealthsiphon/bin/mcp.js
 
-    <section id="features" class="features">
-        <div class="container">
-            <h2>Powerful Features</h2>
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-server"></i>
-                    </div>
-                    <h3>Built-in Proxy Server</h3>
-                    <p>No reliance on external CORS services. Our integrated proxy server handles all requests directly.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Advanced Countermeasures</h3>
-                    <p>Bypass common anti-scraping techniques with user-agent rotation, request delays, and more.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-file-export"></i>
-                    </div>
-                    <h3>Multiple Export Formats</h3>
-                    <p>Download your scraped data in JSON, CSV, or plain text formats for easy integration.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-paint-brush"></i>
-                    </div>
-                    <h3>Modern Dark-Themed UI</h3>
-                    <p>Beautiful, minimalist interface with excellent typography and intuitive controls.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-cogs"></i>
-                    </div>
-                    <h3>Customizable Options</h3>
-                    <p>Fine-tune your scraping with CSS selectors, link following, and content extraction options.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <h3>Fallback Methods</h3>
-                    <p>Multiple fallback strategies ensure you can scrape even the most protected websites.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <h3>Task Scheduler</h3>
-                    <p>Set up recurring scraping tasks with an intuitive interface - no cron knowledge required.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+<span class="c-comment"># then, in your agent:</span>
+<span class="c-user">&gt; Summarize the Wikipedia article on MCP</span>
 
-    <section id="installation" class="installation">
-        <div class="container">
-            <h2>Installation</h2>
-            <div class="installation-steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h3>Clone the Repository</h3>
-                        <div class="code-block">
-                            <code>git clone https://github.com/yourusername/stealthsiphon.git</code>
-                            <button class="copy-btn" onclick="copyCode(this)">
-                                <i class="far fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h3>Install Dependencies</h3>
-                        <div class="code-block">
-                            <code>cd stealthsiphon && npm install</code>
-                            <button class="copy-btn" onclick="copyCode(this)">
-                                <i class="far fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h3>Start the Server</h3>
-                        <div class="code-block">
-                            <code>npm start</code>
-                            <button class="copy-btn" onclick="copyCode(this)">
-                                <i class="far fa-copy"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="step">
-                    <div class="step-number">4</div>
-                    <div class="step-content">
-                        <h3>Open in Browser</h3>
-                        <p>Navigate to <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> in your browser</p>
-                    </div>
-                </div>
-            </div>
-            <div class="quick-install">
-                <h3>Quick Install Script</h3>
-                <p>For Linux/Mac users, you can use our quick install script:</p>
-                <div class="code-block">
-                    <code>curl -s https://raw.githubusercontent.com/yourusername/stealthsiphon/main/install.sh | bash</code>
-                    <button class="copy-btn" onclick="copyCode(this)">
-                        <i class="far fa-copy"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
+<span class="c-tool">fetch_page</span> https://en.wikipedia.org/wiki/Model_Context_Protocol
+<span class="c-dim">URL: https://en.wikipedia.org/wiki/Model_Context_Protocol
+Status: 200 | Mode: http | Format: markdown
+Title: Model Context Protocol - Wikipedia
+Chars 0-20000 of 23486 (truncated; continue with offset=20000)</span>
 
-    <section id="documentation" class="documentation">
-        <div class="container">
-            <h2>Documentation</h2>
-            <div class="doc-grid">
-                <div class="doc-card">
-                    <h3>Basic Usage</h3>
-                    <ol>
-                        <li>Enter the URL you want to scrape</li>
-                        <li>Configure scraping options (optional)</li>
-                        <li>Select your preferred export format</li>
-                        <li>Click "Start Scraping"</li>
-                        <li>Download or preview the results</li>
-                    </ol>
-                    <a href="https://github.com/sunkencity999/stealthsiphon/wiki/Basic-Usage" class="learn-more">Learn More</a>
-                </div>
-                <div class="doc-card">
-                    <h3>Advanced Options</h3>
-                    <ul>
-                        <li><strong>CSS Selector:</strong> Target specific elements</li>
-                        <li><strong>Extract Links/Images:</strong> Get all URLs</li>
-                        <li><strong>Follow Links:</strong> Recursive scraping</li>
-                        <li><strong>Bypass robots.txt:</strong> Ignore restrictions</li>
-                        <li><strong>Rotate User-Agents:</strong> Avoid detection</li>
-                    </ul>
-                    <a href="https://github.com/sunkencity999/stealthsiphon/wiki/Advanced-Options" class="learn-more">Learn More</a>
-                </div>
-                <div class="doc-card">
-                    <h3>Proxy Configuration</h3>
-                    <p>Stealth Siphon includes a built-in proxy server, but you can also configure external proxies for additional anonymity.</p>
-                    <a href="https://github.com/sunkencity999/stealthsiphon/wiki/Proxy-Configuration" class="learn-more">Learn More</a>
-                </div>
-                <div class="doc-card">
-                    <h3>Troubleshooting</h3>
-                    <p>Common issues and their solutions, including handling CAPTCHAs, rate limiting, and IP blocking.</p>
-                    <a href="https://github.com/sunkencity999/stealthsiphon/wiki/Troubleshooting" class="learn-more">Learn More</a>
+<span class="c-tag">&lt;untrusted_web_content source="…"&gt;</span>
+# Model Context Protocol - Wikipedia
+The **Model Context Protocol** (MCP) is an open standard…</code></pre>
                 </div>
             </div>
-        </div>
-    </section>
+            <div class="container stats">
+                <div class="stat"><strong>11–75×</strong><span>smaller than raw HTML (measured)</span></div>
+                <div class="stat"><strong>26</strong><span>MCP tools for agents</span></div>
+                <div class="stat"><strong>0</strong><span>cloud API keys required</span></div>
+                <div class="stat"><strong>4</strong><span>ways in: MCP, REST, CLI, UI</span></div>
+            </div>
+        </section>
 
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <i class="fas fa-spider"></i>
-                    <span>Stealth Siphon</span>
-                </div>
-                <p>An open-source project. Use responsibly and respect website terms of service.</p>
-            </div>
-            <div class="footer-links">
-                <a href="https://github.com/sunkencity999/stealthsiphon" target="_blank">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="https://github.com/sunkencity999/stealthsiphon/issues" target="_blank">
-                    <i class="fas fa-bug"></i>
-                </a>
-                <a href="https://github.com/sunkencity999/stealthsiphon/wiki" target="_blank">
-                    <i class="fas fa-book"></i>
-                </a>
-            </div>
-        </div>
-        <div class="copyright">
+        <!-- WHY -->
+        <section id="why" class="section">
             <div class="container">
-                <p>&copy; 2025 Stealth Siphon. MIT License.</p>
+                <div class="section-head">
+                    <p class="eyebrow">Why</p>
+                    <h2>Agents are bad at the raw web. This fixes that.</h2>
+                    <p>Give an agent a plain HTTP fetch and it burns its context on markup, sees empty JavaScript shells, and gets stuck at the first login page. A malicious page can even trick it into requesting internal addresses. Stealth Siphon sits between your agent and the web.</p>
+                </div>
+
+                <div class="why-grid">
+                    <article class="why-card">
+                        <i class="fas fa-compress"></i>
+                        <h3>Context is precious</h3>
+                        <p>Navigation, scripts, styles and tracking can be over 90% of a page. You get the main content as Markdown, in chunks the agent can page through, and the agent decides what to read next.</p>
+                    </article>
+                    <article class="why-card">
+                        <i class="fab fa-js"></i>
+                        <h3>Modern sites need JavaScript</h3>
+                        <p>Auto mode spots empty single-page-app shells and bot walls (403/429/503) and switches to a real headless Chrome. No flags needed.</p>
+                    </article>
+                    <article class="why-card">
+                        <i class="fas fa-hand-pointer"></i>
+                        <h3>Real tasks are interactive</h3>
+                        <p>Logins, search boxes, "load more", infinite scroll. Persistent browser sessions return a compact snapshot, and the agent clicks <code>[e12]</code> instead of guessing selectors.</p>
+                    </article>
+                    <article class="why-card">
+                        <i class="fas fa-table"></i>
+                        <h3>Agents want data, not prose</h3>
+                        <p>Get JSON from CSS selectors, or have your local model fill in a JSON Schema. Product lists, prices, people, events.</p>
+                    </article>
+                    <article class="why-card">
+                        <i class="fas fa-code-compare"></i>
+                        <h3>"Tell me when it changes"</h3>
+                        <p>Watches re-check on a schedule and store unified diffs. Later, the agent asks what changed. Webhooks are optional.</p>
+                    </article>
+                    <article class="why-card">
+                        <i class="fas fa-user-shield"></i>
+                        <h3>Pages can attack agents</h3>
+                        <p>Private, local and cloud-metadata addresses are blocked at every layer. Web content is clearly marked as untrusted, and robots.txt is respected by default.</p>
+                    </article>
+                </div>
+
+                <figure class="token-chart" aria-labelledby="chart-title">
+                    <figcaption id="chart-title">
+                        <h3>Characters an agent has to read</h3>
+                        <p>Raw HTML vs Stealth Siphon Markdown, measured on live pages.</p>
+                    </figcaption>
+                    <div class="legend"><span class="sw sw-html"></span> Raw HTML <span class="sw sw-md"></span> Stealth Siphon Markdown</div>
+                    <div class="bars" role="list">
+                        <div class="bar-row" role="listitem">
+                            <span class="bar-label">BBC News</span>
+                            <div class="bar-track"><div class="bar bar-html" style="--w:100%"><span>387k</span></div><div class="bar bar-md" style="--w:4.3%"><span>16.7k · 23×</span></div></div>
+                        </div>
+                        <div class="bar-row" role="listitem">
+                            <span class="bar-label">GitHub repo page</span>
+                            <div class="bar-track"><div class="bar bar-html" style="--w:85.9%"><span>332k</span></div><div class="bar bar-md" style="--w:2.9%"><span>11.2k · 30×</span></div></div>
+                        </div>
+                        <div class="bar-row" role="listitem">
+                            <span class="bar-label">Wikipedia article</span>
+                            <div class="bar-track"><div class="bar bar-html" style="--w:69.6%"><span>270k</span></div><div class="bar bar-md" style="--w:6.1%"><span>23.5k · 11×</span></div></div>
+                        </div>
+                        <div class="bar-row" role="listitem">
+                            <span class="bar-label">MDN docs page</span>
+                            <div class="bar-track"><div class="bar bar-html" style="--w:54.1%"><span>209k</span></div><div class="bar bar-md" style="--w:0.7%"><span>2.8k · 75×</span></div></div>
+                        </div>
+                    </div>
+                </figure>
             </div>
+        </section>
+
+        <!-- FEATURES -->
+        <section id="features" class="section section-alt">
+            <div class="container">
+                <div class="section-head">
+                    <p class="eyebrow">Features</p>
+                    <h2>One local service, the whole toolkit</h2>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature"><i class="fas fa-file-lines"></i><h3>Clean Markdown</h3><p>Readability-based main-content extraction with tables, absolute links, metadata (OpenGraph, JSON-LD) and a link inventory. Output is paged with <code>maxChars</code>/<code>offset</code>.</p></div>
+                    <div class="feature"><i class="fas fa-wand-magic-sparkles"></i><h3>Auto rendering</h3><p>Plain HTTP when it's enough, headless Chrome when the page needs it. Uses the Chrome you already have, so there's no browser download.</p></div>
+                    <div class="feature"><i class="fas fa-code"></i><h3>Structured extraction</h3><p>CSS fields and repeated-item lists (<code>"a.title@href"</code>), or JSON Schema extraction by a local model.</p></div>
+                    <div class="feature"><i class="fas fa-microchip"></i><h3>Local LLMs</h3><p>LM Studio, Ollama, or any OpenAI-compatible server. Auto-detects what's running and uses the loaded model.</p></div>
+                    <div class="feature"><i class="fas fa-sitemap"></i><h3>Bounded crawling</h3><p>Concurrent and rate-limited, with page and depth limits, include/exclude globs and sitemap seeding. Returns summaries first, full pages on demand.</p></div>
+                    <div class="feature"><i class="fas fa-window-restore"></i><h3>Browser sessions</h3><p>Navigate, click, type, select, scroll, wait, read, screenshot and evaluate, in isolated sessions that close when idle.</p></div>
+                    <div class="feature"><i class="fas fa-bell"></i><h3>Change monitoring</h3><p>Cron or presets like <code>hourly</code>, with SQLite run history, unified diffs and webhooks on change.</p></div>
+                    <div class="feature"><i class="fas fa-lock"></i><h3>Safe by default</h3><p>SSRF protection, loopback binding, Host/Origin guards, optional API key, robots.txt, and per-host rate limits.</p></div>
+                </div>
+
+                <div class="ways">
+                    <h3>Four ways to use it</h3>
+                    <div class="tabs" role="tablist" aria-label="Interfaces">
+                        <button role="tab" aria-selected="true" aria-controls="tab-mcp" id="t-mcp">MCP</button>
+                        <button role="tab" aria-selected="false" aria-controls="tab-rest" id="t-rest" tabindex="-1">REST</button>
+                        <button role="tab" aria-selected="false" aria-controls="tab-cli" id="t-cli" tabindex="-1">CLI</button>
+                        <button role="tab" aria-selected="false" aria-controls="tab-ui" id="t-ui" tabindex="-1">Web UI</button>
+                    </div>
+                    <div class="tab-panel" id="tab-mcp" role="tabpanel" aria-labelledby="t-mcp">
+                        <p>For Claude Code, Claude Desktop, LocalClaw and any MCP client. It runs over stdio, or over Streamable HTTP at <code>/mcp</code>.</p>
+                        <div class="code"><button class="copy" aria-label="Copy">Copy</button><pre><code>claude mcp add stealthsiphon -- node /path/to/stealthsiphon/bin/mcp.js</code></pre></div>
+                    </div>
+                    <div class="tab-panel" id="tab-rest" role="tabpanel" aria-labelledby="t-rest" hidden>
+                        <p>Every endpoint returns JSON, and errors carry stable codes.</p>
+                        <div class="code"><button class="copy" aria-label="Copy">Copy</button><pre><code>curl -s localhost:4200/api/fetch -H 'content-type: application/json' \
+  -d '{"url":"https://example.com","format":"markdown","maxChars":4000}'</code></pre></div>
+                    </div>
+                    <div class="tab-panel" id="tab-cli" role="tabpanel" aria-labelledby="t-cli" hidden>
+                        <p>Good for shell-based agents and scripts.</p>
+                        <div class="code"><button class="copy" aria-label="Copy">Copy</button><pre><code>node bin/siphon.js fetch https://example.com
+node bin/siphon.js extract https://quotes.toscrape.com --list .quote \
+  --fields '{"text":".text","author":".author"}'
+node bin/siphon.js crawl https://docs.example.com --max-pages 30 --include "/docs/**"</code></pre></div>
+                    </div>
+                    <div class="tab-panel" id="tab-ui" role="tabpanel" aria-labelledby="t-ui" hidden>
+                        <p>Point-and-click scraping, exports (JSON, CSV, TXT, HTML, SQLite, MongoDB, MySQL), and a scheduler for recurring tasks.</p>
+                        <div class="cta-row"><a class="btn btn-primary" href="index.html">Open the scraper</a><a class="btn btn-ghost" href="scheduler.html">Open the scheduler</a></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TUTORIAL -->
+        <section id="tutorial" class="section">
+            <div class="container narrow">
+                <div class="section-head">
+                    <p class="eyebrow">Tutorial</p>
+                    <h2>Connect it to your agent in five minutes</h2>
+                    <p>You need Node.js 18.17+ and Google Chrome (Chromium, Edge or Brave also work). LM Studio or Ollama is optional.</p>
+                </div>
+
+                <ol class="steps">
+                    <li class="step">
+                        <h3>Install</h3>
+                        <div class="code"><button class="copy" aria-label="Copy">Copy</button><pre><code>git clone https://github.com/sunkencity999/stealthsiphon.git
+cd stealthsiphon
+npm install</code></pre></div>
+                    </li>
+
+                    <li class="step">
+                        <h3>Register the MCP server</h3>
+                        <p><strong>Claude Code</strong>: stdio is simplest, and no server needs to be running:</p>
+                        <div class="code"><button class="copy" aria-label="Copy">Copy</button><pre><code>claude mcp add stealthsiphon -- node "$(pwd)/bin/mcp.js"</code></pre></div>
+                        <p>Or run <code>npm start</code> and connect over HTTP. This also keeps scheduled watches running while no agent is open:</p>
+                        <div class="code"><button class="copy" aria-label="Copy">Copy</button><pre><code>claude mcp add --transport http stealthsiphon http://127.0.0.1:4200/mcp</code></pre></div>
+                        <p><strong>Claude Desktop, LocalClaw or any MCP JSON config:</strong></p>
+                        <div class="code"><button class="copy" aria-label="Copy">Copy</button><pre><code>{
+  "mcpServers": {
+    "stealthsiphon": {
+      "command": "node",
+      "args": ["/absolute/path/to/stealthsiphon/bin/mcp.js"]
+    }
+  }
+}</code></pre></div>
+                        <p class="hint"><i class="fas fa-circle-check"></i> In Claude Code, run <code>/mcp</code>. You should see <code>stealthsiphon</code> with 26 tools.</p>
+                    </li>
+
+                    <li class="step">
+                        <h3>Optional: turn on local-model extraction</h3>
+                        <p><strong>LM Studio:</strong> load a chat model, then start the server in the <em>Developer</em> tab. Stealth Siphon uses whatever model is loaded. <strong>Ollama:</strong> run <code>ollama serve</code> with a model pulled. Check what was found:</p>
+                        <div class="code"><button class="copy" aria-label="Copy">Copy</button><pre><code>node bin/siphon.js llm</code></pre></div>
+                    </li>
+
+                    <li class="step">
+                        <h3>Just ask</h3>
+                        <p>You don't need to name tools. The server tells your agent which tool fits which job.</p>
+                        <div class="prompt-table" role="table">
+                            <div class="pt-row pt-head" role="row"><span role="columnheader">You say</span><span role="columnheader">The agent uses</span></div>
+                            <div class="pt-row" role="row"><span role="cell">"Summarize https://example.com/blog/post"</span><span role="cell"><code>fetch_page</code>: article Markdown, ~20× fewer tokens</span></div>
+                            <div class="pt-row" role="row"><span role="cell">"What does this React dashboard show?"</span><span role="cell"><code>fetch_page</code>: auto-renders in Chrome</span></div>
+                            <div class="pt-row" role="row"><span role="cell">"Every product and price on this sale page, as JSON"</span><span role="cell"><code>extract</code> with a CSS list, or a schema filled in by your local model</span></div>
+                            <div class="pt-row" role="row"><span role="cell">"Read the docs site and explain how auth works"</span><span role="cell"><code>crawl</code> with <code>include: ["/docs/**"]</code>, then <code>get_crawl_page</code></span></div>
+                            <div class="pt-row" role="row"><span role="cell">"Log in to staging with the test account and screenshot settings"</span><span role="cell"><code>browser_open</code>, then <code>browser_type</code>, <code>browser_click</code>, <code>browser_screenshot</code></span></div>
+                            <div class="pt-row" role="row"><span role="cell">"Watch the vendor pricing page and tell me what changes"</span><span role="cell"><code>watch_page</code> (daily), later <code>get_changes</code></span></div>
+                        </div>
+                    </li>
+
+                    <li class="step">
+                        <h3>Get the most out of it</h3>
+                        <ul class="tips">
+                            <li><strong>Long pages:</strong> results say <code>continue with offset=…</code>. Page forward, or pass a <code>selector</code> to fetch just one section.</li>
+                            <li><strong>Listing and index pages:</strong> set <code>mainContent: false</code>. Article extraction can drop link lists.</li>
+                            <li><strong>Quiet watches:</strong> give <code>watch_page</code> a <code>selector</code> like <code>#pricing</code> so ads and timestamps don't count as changes.</li>
+                            <li><strong>robots.txt:</strong> disallowed paths return <code>ROBOTS_DISALLOWED</code>. Pass <code>respectRobots: false</code> only when you have permission.</li>
+                            <li><strong>Sharing on a network:</strong> set <code>HOST=0.0.0.0</code> <em>and</em> <code>STEALTHSIPHON_API_KEY</code>.</li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- TOOLS -->
+        <section id="tools" class="section section-alt">
+            <div class="container">
+                <div class="section-head">
+                    <p class="eyebrow">Reference</p>
+                    <h2>26 tools, grouped by job</h2>
+                </div>
+                <div class="tool-groups">
+                    <div class="tool-group">
+                        <h3><i class="fas fa-book-open"></i> Read</h3>
+                        <dl>
+                            <dt>fetch_page</dt><dd>Markdown, text, HTML or raw output, with optional metadata. Paged.</dd>
+                            <dt>get_links</dt><dd>Links with anchor text, internal or external, filterable.</dd>
+                            <dt>screenshot</dt><dd>Viewport, full page, or a single element.</dd>
+                        </dl>
+                    </div>
+                    <div class="tool-group">
+                        <h3><i class="fas fa-filter"></i> Extract &amp; crawl</h3>
+                        <dl>
+                            <dt>extract</dt><dd>CSS fields and lists, or a JSON Schema filled in by a local LLM.</dd>
+                            <dt>crawl</dt><dd>Bounded site crawl that returns page summaries.</dd>
+                            <dt>crawl_status · get_crawl_page · cancel_crawl</dt><dd>Check progress, read a stored page, or stop.</dd>
+                        </dl>
+                    </div>
+                    <div class="tool-group">
+                        <h3><i class="fas fa-window-maximize"></i> Browser</h3>
+                        <dl>
+                            <dt>browser_open</dt><dd>Isolated session that returns a snapshot with element refs.</dd>
+                            <dt>navigate · click · type · select · press · scroll · wait</dt><dd>Drive the page by ref, selector or visible text.</dd>
+                            <dt>snapshot · read · screenshot · evaluate · close</dt><dd>Inspect, read as Markdown, capture, run JavaScript, or close.</dd>
+                        </dl>
+                    </div>
+                    <div class="tool-group">
+                        <h3><i class="fas fa-clock-rotate-left"></i> Monitor</h3>
+                        <dl>
+                            <dt>watch_page</dt><dd>Scheduled re-fetch with diffs and webhooks.</dd>
+                            <dt>get_changes</dt><dd>Unified diffs for one task, or across all tasks.</dd>
+                            <dt>list_tasks · run_task · delete_task</dt><dd>Manage scheduled tasks.</dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LLM -->
+        <section id="llm" class="section">
+            <div class="container">
+                <div class="section-head">
+                    <p class="eyebrow">Local LLMs</p>
+                    <h2>Your model, your machine</h2>
+                    <p>Schema extraction runs on a model you control. With <code>LLM_PROVIDER=auto</code>, Stealth Siphon finds whichever server is running and uses the model you already have loaded.</p>
+                </div>
+                <div class="provider-grid">
+                    <div class="provider">
+                        <h3>LM Studio</h3>
+                        <p>Start the server in the Developer tab. It uses the loaded model, with structured output via <code>json_schema</code> and an automatic fallback for models that reject it.</p>
+                        <code class="pill">LMSTUDIO_URL=http://127.0.0.1:1234</code>
+                    </div>
+                    <div class="provider">
+                        <h3>Ollama</h3>
+                        <p>Run <code>ollama serve</code>. It uses <code>OLLAMA_MODEL</code> or the first installed chat model, constrained with Ollama's <code>format</code> schema.</p>
+                        <code class="pill">OLLAMA_URL=http://127.0.0.1:11434</code>
+                    </div>
+                    <div class="provider">
+                        <h3>OpenAI-compatible</h3>
+                        <p>vLLM, llama.cpp server, LocalAI, or a hosted endpoint, with an optional API key.</p>
+                        <code class="pill">OPENAI_COMPAT_URL=…</code>
+                    </div>
+                </div>
+                <div class="callout">
+                    <i class="fas fa-bolt"></i>
+                    <p><strong>Built for reasoning models.</strong> The schema goes into the prompt as well as the decoding constraint, and <code>&lt;think&gt;</code> blocks are stripped before parsing. In testing, that took one extraction from 3,151 tokens with wrong values to 108 tokens with correct ones.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECURITY -->
+        <section id="security" class="section section-alt">
+            <div class="container">
+                <div class="section-head">
+                    <p class="eyebrow">Security</p>
+                    <h2>Assume the agent is reading hostile pages</h2>
+                </div>
+                <div class="security-grid">
+                    <div><i class="fas fa-network-wired"></i><h3>SSRF protection</h3><p>Localhost, private ranges, link-local and cloud-metadata addresses are blocked. The check runs on the URL, after DNS, at socket connect, on every redirect, and on every request the browser makes.</p></div>
+                    <div><i class="fas fa-quote-left"></i><h3>Untrusted content markers</h3><p>Web content comes back inside <code>&lt;untrusted_web_content&gt;</code> tags that pages can't close early.</p></div>
+                    <div><i class="fas fa-house-lock"></i><h3>Locked-down server</h3><p>Binds to 127.0.0.1, rejects foreign Host headers and cross-origin requests, supports an optional API key, and never exposes stack traces or data files.</p></div>
+                    <div><i class="fas fa-robot"></i><h3>Polite by default</h3><p>Respects robots.txt and Crawl-delay, with per-host concurrency and rate limits. You can override per request, with permission.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- INSTALL -->
+        <section id="install" class="section">
+            <div class="container narrow">
+                <div class="section-head">
+                    <p class="eyebrow">Get started</p>
+                    <h2>Run it locally</h2>
+                </div>
+                <div class="code"><button class="copy" aria-label="Copy">Copy</button><pre><code>git clone https://github.com/sunkencity999/stealthsiphon.git
+cd stealthsiphon
+npm install
+npm start      # http://127.0.0.1:4200: web UI, REST API, and MCP at /mcp</code></pre></div>
+                <p class="center muted">Every setting is documented in <code>.env.example</code>. Copy it to <code>.env</code> to customize.</p>
+                <div class="cta-row center"><a href="index.html" class="btn btn-primary">Open the web app</a><a href="https://github.com/sunkencity999/stealthsiphon#readme" class="btn btn-ghost" target="_blank" rel="noopener">Read the README</a></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <div class="logo"><img src="favicon.svg" alt="" width="22" height="22"><span>Stealth Siphon</span></div>
+            <nav class="footer-links">
+                <a href="index.html">Scraper</a>
+                <a href="scheduler.html">Scheduler</a>
+                <a href="#tutorial">Tutorial</a>
+                <a href="https://github.com/sunkencity999/stealthsiphon" target="_blank" rel="noopener">GitHub</a>
+            </nav>
+            <p class="muted">Created by Christopher Bradford · MIT License</p>
         </div>
     </footer>
 
     <script>
-        // Copy code function
-        function copyCode(button) {
-            const codeBlock = button.previousElementSibling;
-            const textArea = document.createElement('textarea');
-            textArea.value = codeBlock.textContent;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            
-            // Show copied feedback
-            const originalIcon = button.innerHTML;
-            button.innerHTML = '<i class="fas fa-check"></i>';
-            setTimeout(() => {
-                button.innerHTML = originalIcon;
-            }, 2000);
-        }
-        
-        // Mobile menu toggle
-        document.addEventListener('DOMContentLoaded', function() {
-            const menuToggle = document.getElementById('menuToggle');
-            const mainNav = document.getElementById('mainNav');
-            
-            if (menuToggle && mainNav) {
-                menuToggle.addEventListener('click', function() {
-                    mainNav.classList.toggle('mobile-nav-open');
-                    menuToggle.classList.toggle('active');
-                    document.body.classList.toggle('menu-open');
-                });
-                
-                // Close menu when clicking on a link
-                const navLinks = mainNav.querySelectorAll('a');
-                navLinks.forEach(link => {
-                    link.addEventListener('click', function() {
-                        mainNav.classList.remove('mobile-nav-open');
-                        menuToggle.classList.remove('active');
-                        document.body.classList.remove('menu-open');
-                    });
-                });
-                
-                // Close menu when clicking outside
-                document.addEventListener('click', function(event) {
-                    if (!mainNav.contains(event.target) && !menuToggle.contains(event.target)) {
-                        mainNav.classList.remove('mobile-nav-open');
-                        menuToggle.classList.remove('active');
-                        document.body.classList.remove('menu-open');
-                    }
+        (function () {
+            // Mobile menu
+            var toggle = document.getElementById('menuToggle');
+            var nav = document.getElementById('mainNav');
+            toggle.addEventListener('click', function () {
+                var open = nav.classList.toggle('open');
+                toggle.setAttribute('aria-expanded', String(open));
+            });
+            nav.addEventListener('click', function (e) {
+                if (e.target.closest('a')) { nav.classList.remove('open'); toggle.setAttribute('aria-expanded', 'false'); }
+            });
+
+            // Tabs
+            var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+            function select(tab) {
+                tabs.forEach(function (t) {
+                    var on = t === tab;
+                    t.setAttribute('aria-selected', String(on));
+                    t.tabIndex = on ? 0 : -1;
+                    document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
                 });
             }
-        });
+            tabs.forEach(function (tab, i) {
+                tab.addEventListener('click', function () { select(tab); });
+                tab.addEventListener('keydown', function (e) {
+                    var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+                    if (!d) return;
+                    var next = tabs[(i + d + tabs.length) % tabs.length];
+                    select(next); next.focus();
+                });
+            });
+
+            // Copy buttons
+            document.querySelectorAll('.code .copy').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var text = btn.parentElement.querySelector('code').innerText;
+                    var done = function (label) { btn.textContent = label; setTimeout(function () { btn.textContent = 'Copy'; }, 1400); };
+                    try {
+                        navigator.clipboard.writeText(text).then(function () { done('Copied'); }, function () { done('Press ⌘C'); });
+                    } catch (e) { done('Press ⌘C'); }
+                });
+            });
+        })();
     </script>
 </body>
 </html>

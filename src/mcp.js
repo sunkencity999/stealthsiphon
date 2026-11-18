@@ -25,7 +25,7 @@ const DEFAULT_MAX_CHARS = 20000;
 const INSTRUCTIONS = `StealthSiphon: web fetching, extraction, crawling, browser automation, and page monitoring.
 Choosing a tool:
 - Read one page: fetch_page (Markdown by default; JS-heavy pages auto-render in Chrome). Long pages are paged: call again with offset=nextOffset.
-- Structured data: extract (CSS "fields" for known layouts, or a JSON "schema" for LLM extraction via local Ollama).
+- Structured data: extract (CSS "fields" for known layouts, or a JSON "schema" for LLM extraction via a local LM Studio / Ollama model).
 - Find where to go next: get_links. Many pages from one site: crawl, then get_crawl_page for the pages you need.
 - Visual check: screenshot. Logins, forms, infinite scroll, multi-step flows: browser_open then browser_* tools (target elements by the ref from browser_snapshot).
 - Track a page over time: watch_page, then get_changes.
@@ -159,7 +159,7 @@ function createMcpServer() {
     // ---------------------------------------------------------------- extract
     server.registerTool('extract', {
         title: 'Extract structured data',
-        description: 'Extract structured JSON from a page. CSS mode: give "fields" mapping names to selectors ("h1", "a.more@href", or {selector, attr, all, type}); add "list" to extract repeated items like products or search results. LLM mode: give a JSON "schema" (and optional instructions); a local Ollama model fills it in.',
+        description: 'Extract structured JSON from a page. CSS mode: give "fields" mapping names to selectors ("h1", "a.more@href", or {selector, attr, all, type}); add "list" to extract repeated items like products or search results. LLM mode: give a JSON "schema" (and optional instructions); a local model (LM Studio, Ollama, or any OpenAI-compatible server) fills it in.',
         inputSchema: {
             url,
             fields: z.record(z.string(), z.union([z.string(), z.object({
@@ -172,7 +172,8 @@ function createMcpServer() {
             limit: z.number().int().min(1).max(1000).optional().describe('CSS list mode: max items (default 500)'),
             schema: z.record(z.string(), z.any()).optional().describe('LLM mode: JSON Schema for the output'),
             instructions: z.string().optional().describe('LLM mode: extra guidance for the model'),
-            model: z.string().optional().describe(`LLM mode: Ollama model (default ${config.ollamaModel})`),
+            provider: z.enum(['auto', 'lmstudio', 'ollama', 'openai']).optional().describe(`LLM mode: local model server (default ${config.llmProvider}: whichever of LM Studio / Ollama is running)`),
+            model: z.string().optional().describe('LLM mode: model id (default: the model loaded in LM Studio, or the configured/first Ollama model)'),
             mode,
             waitForSelector: z.string().optional(),
             respectRobots,
@@ -182,7 +183,7 @@ function createMcpServer() {
         const r = await extract(a);
         const { ok, finalUrl, status, method, warnings } = r;
         const payload = r.items ? { count: r.count, items: r.items } : { data: r.data };
-        const head = `Extracted from ${finalUrl} (status ${status}, ${method}${r.model ? ' ' + r.model : ''}${ok ? '' : ', NOT OK'})${warnings && warnings.length ? `\nWarnings: ${warnings.join('; ')}` : ''}`;
+        const head = `Extracted from ${finalUrl} (status ${status}, ${method}${r.model ? ` via ${r.provider}:${r.model}` : ''}${ok ? '' : ', NOT OK'})${warnings && warnings.length ? `\nWarnings: ${warnings.join('; ')}` : ''}`;
         return textResult(`${head}\n\n${wrapUntrusted(finalUrl, JSON.stringify(payload, null, 2))}`);
     }));
 

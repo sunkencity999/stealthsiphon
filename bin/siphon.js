@@ -6,7 +6,8 @@
  *                      [--selector css] [--max-chars N] [--offset N] [--links] [--json]
  *   siphon links <url> [--filter internal|external|all]
  *   siphon extract <url> --fields '{"title":"h1","price":".price"}' [--list ".item"]
- *   siphon extract <url> --schema '{"type":"object",...}' [--instructions "..."]
+ *   siphon extract <url> --schema '{"type":"object",...}' [--instructions "..."] [--provider lmstudio|ollama|openai] [--model id]
+ *   siphon llm          show which local LLM servers/models are available
  *   siphon screenshot <url> [-o out.png] [--full-page] [--selector css]
  *   siphon crawl <url> [--max-pages N] [--max-depth N] [--include glob] [--exclude glob] [--json]
  *   siphon serve        start the web server / REST API / MCP HTTP endpoint
@@ -93,8 +94,22 @@ async function main() {
                 schema: a.schema ? JSON.parse(a.schema) : undefined,
                 instructions: a.instructions,
                 model: a.model,
+                provider: a.provider,
             });
             print(JSON.stringify(r.items ? r.items : r.data, null, 2));
+            return;
+        }
+        case 'llm': {
+            const llm = require('../src/core/llm');
+            const status = await llm.probe({ fresh: true });
+            for (const s of status) {
+                print(`${s.provider.padEnd(9)} ${s.url}  ${s.available ? `${s.models.length} model(s)` : `unavailable (${s.error})`}`);
+                for (const m of s.models || []) print(`    ${m.loaded ? '*' : ' '} ${m.id}`);
+            }
+            try {
+                const r = await llm.resolve({});
+                print(`\nextract would use: ${r.provider} / ${r.model}   (* = loaded)`);
+            } catch (err) { print(`\n${err.message}`); }
             return;
         }
         case 'screenshot': {
@@ -124,7 +139,7 @@ async function main() {
             return;
         }
         default:
-            print(fs.readFileSync(__filename, 'utf8').split('\n').slice(2, 18).map(l => l.replace(/^ \* ?/, '')).join('\n'));
+            print(fs.readFileSync(__filename, 'utf8').split('\n').slice(2, 19).map(l => l.replace(/^ \* ?/, '')).join('\n'));
             process.exitCode = cmd ? 1 : 0;
     }
 }

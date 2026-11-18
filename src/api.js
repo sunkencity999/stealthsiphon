@@ -33,6 +33,13 @@ function createApiRouter() {
     const api = express.Router();
 
     // ---- meta ----------------------------------------------------------------
+    api.get('/llm', h(async (req, res) => {
+        const llm = require('./core/llm');
+        const providers = await llm.probe({ fresh: bool(req.query.fresh) });
+        let selected = null;
+        try { selected = await llm.resolve({}); } catch (err) { selected = { error: err.message }; }
+        res.json({ configured: config.llmProvider, selected, providers });
+    }));
     api.get('/health', (_req, res) => {
         res.json({
             ok: true,
@@ -42,6 +49,7 @@ function createApiRouter() {
             sessions: browser.listSessions().length,
             respectRobotsByDefault: config.respectRobotsByDefault,
             allowPrivateNetworks: config.allowPrivateNetworks,
+            llmProvider: config.llmProvider,
         });
     });
 

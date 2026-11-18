@@ -56,3 +56,15 @@ test('httpFetch refuses to connect to private addresses at socket level', async 
         config.allowPrivateNetworks = true;
     }
 });
+
+test('.env parser handles inline comments, quotes and export', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const { parseDotenv } = require('../src/config');
+    const parsed = parseDotenv(fs.readFileSync(path.join(__dirname, '..', '.env.example'), 'utf8'));
+    assert.equal(parsed.HOST, '127.0.0.1');
+    assert.equal(parsed.LLM_PROVIDER, 'auto');
+    assert.equal(parsed.LMSTUDIO_MODEL, '');
+    assert.equal(parsed.LMSTUDIO_URL, 'http://127.0.0.1:1234');
+    assert.deepEqual(parseDotenv('export A="x # not a comment"\nB=\'y\' # c\nC=a#b\n# D=1'), { A: 'x # not a comment', B: 'y', C: 'a#b' });
+});

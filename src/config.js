@@ -7,14 +7,27 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 
+/** Parse .env text: KEY=value, optional quotes, full-line and inline (" #") comments. */
+function parseDotenv(text) {
+    const out = {};
+    for (const line of text.split(/\r?\n/)) {
+        if (/^\s*(#|$)/.test(line)) continue;
+        const m = line.match(/^\s*(?:export\s+)?([A-Z0-9_]+)\s*=\s*(.*)$/i);
+        if (!m) continue;
+        let value = m[2].trim();
+        const quoted = value.match(/^(['"])(.*?)\1/);
+        if (quoted) value = quoted[2];
+        else value = value.startsWith('#') ? '' : value.replace(/\s+#.*$/, '').trim();
+        out[m[1]] = value;
+    }
+    return out;
+}
+
 // Minimal .env loader (no dependency). Existing env vars win.
 const envFile = path.join(ROOT, '.env');
 if (fs.existsSync(envFile)) {
-    for (const line of fs.readFileSync(envFile, 'utf8').split(/\r?\n/)) {
-        const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*?)\s*$/i);
-        if (!m || line.trim().startsWith('#')) continue;
-        const value = m[2].replace(/^(['"])(.*)\1$/, '$2');
-        if (process.env[m[1]] === undefined) process.env[m[1]] = value;
+    for (const [k, v] of Object.entries(parseDotenv(fs.readFileSync(envFile, 'utf8')))) {
+        if (process.env[k] === undefined) process.env[k] = v;
     }
 }
 
@@ -61,9 +74,16 @@ const config = {
     browserSessionIdleMs: int('BROWSER_SESSION_IDLE_MS', 10 * 60 * 1000),
     allowEvaluate: bool('ALLOW_EVALUATE', true),
 
-    // LLM extraction (Ollama)
+    // LLM extraction: auto | lmstudio | ollama | openai (any OpenAI-compatible server)
+    llmProvider: env('LLM_PROVIDER', 'auto'),
+    llmTimeoutMs: int('LLM_TIMEOUT_MS', 180000),
+    lmstudioUrl: env('LMSTUDIO_URL', 'http://127.0.0.1:1234'),
+    lmstudioModel: env('LMSTUDIO_MODEL', ''), // empty = the model currently loaded in LM Studio
     ollamaUrl: env('OLLAMA_URL', 'http://127.0.0.1:11434'),
-    ollamaModel: env('OLLAMA_MODEL', 'llama3.1'),
+    ollamaModel: env('OLLAMA_MODEL', ''), // empty = first installed model
+    openaiCompatUrl: env('OPENAI_COMPAT_URL', ''),
+    openaiCompatModel: env('OPENAI_COMPAT_MODEL', ''),
+    openaiCompatApiKey: env('OPENAI_COMPAT_API_KEY', ''),
 
     // Webhooks may target private networks only if explicitly allowed
     allowPrivateWebhooks: bool('ALLOW_PRIVATE_WEBHOOKS', false),
@@ -74,3 +94,4 @@ const config = {
 };
 
 module.exports = config;
+module.exports.parseDotenv = parseDotenv;
