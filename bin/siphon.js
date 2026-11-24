@@ -10,6 +10,7 @@
  *   siphon llm          show which local LLM servers/models are available
  *   siphon screenshot <url> [-o out.png] [--full-page] [--selector css]
  *   siphon crawl <url> [--max-pages N] [--max-depth N] [--include glob] [--exclude glob] [--json]
+ *   siphon scripts <url> [--full] [--max-external N] [--json] [-o out.js]   dump page <script>s (inline + external bodies with --full)
  *   siphon serve        start the web server / REST API / MCP HTTP endpoint
  *   siphon mcp          start the MCP server on stdio
  *
@@ -120,6 +121,34 @@ async function main() {
             const out = a.output || `screenshot-${Date.now()}.${type}`;
             fs.writeFileSync(out, s.image);
             console.error(`Saved ${out} (${s.image.length} bytes) from ${s.finalUrl}`);
+            return;
+        }
+        case 'scripts': {
+            needUrl();
+            const { collectScripts } = require('../src/core/browser');
+            const r = await collectScripts(url, {
+                userAgent: a.userAgent,
+                waitForSelector: a.waitFor,
+                waitMs: num(a.waitMs),
+                fetchExternal: !!a.full,
+                maxExternal: num(a.maxExternal),
+            });
+            if (a.json) {
+                const out = JSON.stringify(r, null, 2);
+                if (a.output) { fs.writeFileSync(a.output, out); console.error(`Saved ${a.output} (${out.length} bytes)`); return; }
+                return print(out);
+            }
+            const parts = [];
+            r.scripts.forEach((s, i) => {
+                parts.push(`/* ===== script[${i}] ${s.src ? 'external: ' + s.src : 'inline'} (type=${s.type}) ===== */`);
+                if (s.src) parts.push(s.body !== undefined ? s.body : '/* external — run with --full to fetch body */');
+                else parts.push(s.inline || '/* empty inline script */');
+                parts.push('');
+            });
+            const out = parts.join('\n');
+            console.error(`${r.scripts.length} scripts from ${r.finalUrl} (status ${r.status}, ${r.tookMs}ms)`);
+            if (a.output) { fs.writeFileSync(a.output, out); console.error(`Saved ${a.output} (${out.length} bytes)`); return; }
+            print(out);
             return;
         }
         case 'crawl': {

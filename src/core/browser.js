@@ -179,6 +179,77 @@ async function render(url, {
     }
 }
 
+/**
+ * Collect every <script> on a rendered page: inline bodies plus (optionally)
+ * external script sources fetched from within the page context (same
+ * cookies/origin as the page itself). The "read the JavaScript" primitive.
+ */
+async function collectScripts(url, {
+    userAgent = config.userAgent,
+    waitUntil = 'networkidle2',
+    waitForSelector,
+    waitMs = 0,
+    timeoutMs = config.requestTimeoutMs,
+    fetchExternal = false,
+    maxExternal = 50,
+} = {}) {
+    await assertSafeUrl(url);
+    const started = Date.now();
+    const browser = await getBrowser();
+    const context = await browser.createBrowserContext();
+    const page = await context.newPage();
+    try {
+        await hardenPage(page, { blockResources: ['media', 'font'] });
+        if (userAgent) await page.setUserAgent(userAgent);
+        let response;
+        try {
+            response = await page.goto(url, { waitUntil, timeout: timeoutMs });
+        } catch (err) {
+            if (!/timeout/i.test(err.message) || !page.url().startsWith('http')) throw err;
+        }
+        if (waitForSelector) await page.waitForSelector(waitForSelector, { timeout: Math.min(timeoutMs, 15000) }).catch(() => {});
+        if (waitMs) await new Promise(r => setTimeout(r, Math.min(waitMs, 30000)));
+
+        const scripts = await page.evaluate(() =>
+            Array.from(document.querySelectorAll('script')).map((s) => ({
+                src: s.src || null,
+                type: s.type || 'text/javascript',
+                inline: s.src ? '' : (s.textContent || ''),
+            }))
+        );
+
+        if (fetchExternal) {
+            let fetched = 0;
+            for (const s of scripts) {
+                if (!s.src || fetched >= maxExternal) continue;
+                try {
+                    s.body = await page.evaluate(async (u) => {
+                        const r = await fetch(u);
+                        return await r.text();
+                    }, s.src);
+                    fetched++;
+                } catch (err) {
+                    s.body = `/* fetch failed: ${err.message} */`;
+                }
+            }
+        }
+
+        return {
+            finalUrl: page.url(),
+            status: response ? response.status() : 200,
+            title: await page.title().catch(() => ''),
+            scripts,
+            tookMs: Date.now() - started,
+        };
+    } catch (err) {
+        if (err instanceof SiphonError) throw err;
+        const code = /timeout/i.test(err.message) ? E.TIMEOUT : /ERR_BLOCKED_BY_CLIENT/.test(err.message) ? E.BLOCKED_URL : E.BROWSER_ERROR;
+        throw new SiphonError(code, err.message, { status: code === E.BLOCKED_URL ? 403 : 502 });
+    } finally {
+        await context.close().catch(() => {});
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Interactive sessions
 // ---------------------------------------------------------------------------
@@ -391,7 +462,7 @@ async function sessionSnapshot(id, { maxElements = 150, maxTextChars = 4000 } = 
 }
 
 module.exports = {
-    isAvailable, findChrome, getBrowser, closeBrowser, render,
+    isAvailable, findChrome, getBrowser, closeBrowser, render, collectScripts,
     openSession, closeSession, listSessions,
     sessionNavigate, sessionClick, sessionType, sessionSelect, sessionPress, sessionScroll, sessionWait,
     sessionHtml, sessionScreenshot, sessionEvaluate, sessionSnapshot,

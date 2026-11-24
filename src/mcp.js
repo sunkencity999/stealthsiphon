@@ -156,6 +156,38 @@ function createMcpServer() {
         return textResult(`${head}\n\n${wrapUntrusted(r.finalUrl, lines.join('\n') || '(none)')}`);
     }));
 
+    // ---------------------------------------------------------------- get_scripts
+    server.registerTool('get_scripts', {
+        title: 'Get page scripts',
+        description: 'Render a page in the headless browser and return every <script>: inline bodies, and external script sources (with bodies when fetchExternal is true). Use to read the JavaScript a page actually runs.',
+        inputSchema: {
+            url,
+            fetchExternal: z.boolean().optional().describe('Also fetch the bodies of external scripts from within the page context (default false)'),
+            maxExternal: z.number().int().min(1).max(200).optional().describe('Cap on external script bodies fetched (default 50)'),
+            waitForSelector: z.string().optional().describe('Wait for this selector before collecting'),
+            maxChars: z.number().int().min(100).max(200000).optional().describe(`Max characters to return (default ${DEFAULT_MAX_CHARS})`),
+            offset: z.number().int().min(0).optional().describe('Character offset to start from (for paging through long output)'),
+        },
+        annotations: { readOnlyHint: true, openWorldHint: true },
+    }, safe(async (a) => {
+        const browser = require('./core/browser');
+        const r = await browser.collectScripts(a.url, { fetchExternal: !!a.fetchExternal, maxExternal: a.maxExternal, waitForSelector: a.waitForSelector });
+        const parts = [];
+        r.scripts.forEach((s, i) => {
+            parts.push(`/* ===== script[${i}] ${s.src ? 'external: ' + s.src : 'inline'} (type=${s.type}) ===== */`);
+            if (s.src) parts.push(s.body !== undefined ? s.body : '/* external body not fetched; set fetchExternal=true */');
+            else parts.push(s.inline || '/* empty inline script */');
+            parts.push('');
+        });
+        const full = parts.join('\n');
+        const max = a.maxChars || DEFAULT_MAX_CHARS;
+        const offset = a.offset || 0;
+        const slice = full.slice(offset, offset + max);
+        let head = `${r.scripts.length} scripts on ${r.finalUrl} (status ${r.status}, ${r.tookMs}ms)`;
+        if (offset + max < full.length) head += `\n(truncated at ${offset + max} of ${full.length} chars; use offset ${offset + max})`;
+        return textResult(`${head}\n\n${wrapUntrusted(r.finalUrl, slice || '(no scripts)')}`);
+    }));
+
     // ---------------------------------------------------------------- extract
     server.registerTool('extract', {
         title: 'Extract structured data',
